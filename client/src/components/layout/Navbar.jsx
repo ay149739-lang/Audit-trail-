@@ -8,7 +8,7 @@ export const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         
         {/* Brand Logo & Title */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3" >
           <div className="p-2 rounded-xl bg-gradient-to-tr from-teal-500 to-emerald-400 text-white shadow-md shadow-teal-500/20">
             <PackageSearch className="w-5 h-5" />
           </div>
