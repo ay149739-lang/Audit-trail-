@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import {
   fetchShipmentEvents,
   fetchShipmentState,
-  fetchRecentShipments as apiFetchRecent,
+  fetchRecentShipments as  apiFetchRecent,
   appendShipmentEvent
 } from '../lib/api';
 
