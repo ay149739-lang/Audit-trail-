@@ -22,12 +22,10 @@ export const fetchShipmentEvents = async (aggregateId) => {
  */
 export const fetchShipmentState = async (aggregateId) => {
   const response = await api.get(`/api/shipment/${encodeURIComponent(aggregateId)}`);
-  return response.data;
+  return  response.data;
 };
 
-/**
- * Fetch top 5 recent distinct shipment IDs with their latest event metadata
- */
+
 export const fetchRecentShipments = async () => {
   const response = await api.get('/api/shipments/recent');
   return response.data;
