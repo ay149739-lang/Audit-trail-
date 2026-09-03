@@ -4,30 +4,39 @@
 
 @layer base {
   body {
-    @apply bg-[#0b0f19] text-slate-100 font-sans antialiased min-h-screen selection:bg-teal-500 selection:text-white;
+    @apply bg-[#051424] text-[#d4e4fa] font-sans antialiased min-h-screen selection:bg-blue-600 selection:text-white;
   }
 }
 
-/* Custom Scrollbar for Event Log & Modals */
+/* Custom High-Tech Scrollbar for Event Stream & Audit Logs */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0f172a;
+  background: #051424;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
-  border-radius: 4px;
+  background: #1c2b3c;
+  border-radius: 2px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #273647;
 }
 
-/* Glassmorphic border accents */
-.border-subtle {
-  border-color: rgba(255, 255, 255, 0.08);
+/* Input Focus Glow from Stitch Spec */
+.stitch-input {
+  @apply bg-[#010f1f] border border-[#273647] text-[#d4e4fa] font-mono rounded text-sm transition-all focus:outline-none focus:border-[#4d8eff] focus:ring-1 focus:ring-[#4d8eff]/30;
+}
+
+/* Stitch Card Elevation Level 1 */
+.stitch-card {
+  @apply bg-[#122131] border border-[#1c2b3c] rounded-lg transition-all;
+}
+
+.stitch-card-hover {
+  @apply bg-[#122131] border border-[#1c2b3c] hover:bg-[#1c2b3c] hover:border-[#273647] rounded-lg transition-all;
 }

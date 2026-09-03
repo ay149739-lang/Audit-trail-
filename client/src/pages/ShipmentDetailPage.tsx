@@ -2,14 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft,
-  Ship,
   MapPin,
-  Clock,
   Send,
   Lock,
   ThermometerSnowflake,
-  ShieldCheck,
-  PackageCheck,
   AlertTriangle,
 } from 'lucide-react';
 import { useShipmentStore } from '../store/useShipmentStore';
@@ -34,23 +30,23 @@ export const ShipmentDetailPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="p-12 text-center text-xs font-mono text-slate-400">
-        Loading aggregate event stream for <span className="text-teal-400 font-bold">{id}</span>...
+      <div className="p-12 text-center text-xs font-mono text-[#8c909f]">
+        Loading aggregate event stream for <span className="text-[#adc6ff] font-bold">{id}</span>...
       </div>
     );
   }
 
   if (error || !selectedShipment) {
     return (
-      <div className="p-8 bg-slate-900 border border-slate-800 rounded-2xl text-center space-y-4 max-w-xl mx-auto mt-8">
+      <div className="p-8 bg-[#122131] border border-[#1c2b3c] rounded text-center space-y-4 max-w-xl mx-auto mt-8 font-mono">
         <AlertTriangle className="w-10 h-10 text-amber-400 mx-auto" />
-        <h2 className="text-lg font-bold text-slate-100">Shipment Aggregate Not Found</h2>
-        <p className="text-xs text-slate-400 font-mono">
+        <h2 className="text-lg font-bold text-[#d4e4fa]">Shipment Aggregate Not Found</h2>
+        <p className="text-xs text-[#8c909f]">
           {error || `No event stream exists in the database for shipment ID "${id}".`}
         </p>
         <button
           onClick={() => navigate('/shipments')}
-          className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2 rounded-xl text-xs font-mono transition-colors inline-flex items-center gap-2"
+          className="bg-[#010f1f] border border-[#273647] hover:bg-[#1c2b3c] text-[#d4e4fa] px-4 py-2 rounded text-xs transition-colors inline-flex items-center gap-2"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Return to Shipments Directory</span>
@@ -66,22 +62,22 @@ export const ShipmentDetailPage: React.FC = () => {
       {/* Top Navigation */}
       <button
         onClick={() => navigate('/shipments')}
-        className="text-xs font-mono text-slate-400 hover:text-slate-200 flex items-center gap-1.5 transition-colors"
+        className="text-xs font-mono text-[#8c909f] hover:text-[#d4e4fa] flex items-center gap-1.5 transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
         <span>Back to Shipments Directory</span>
       </button>
 
       {/* Aggregate Header Card */}
-      <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-6">
+      <div className="bg-[#0d1c2d] p-6 rounded border border-[#1c2b3c] space-y-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-teal-300 font-mono">
+              <h1 className="text-2xl font-bold text-[#adc6ff] font-mono">
                 #{selectedShipment.aggregateId}
               </h1>
               <span
-                className={`px-3 py-1 rounded-lg border text-xs font-bold font-mono ${
+                className={`px-3 py-1 rounded border text-xs font-bold font-mono ${
                   selectedShipment.status === 'WARNING'
                     ? 'bg-amber-500/15 text-amber-300 border-amber-500/40'
                     : selectedShipment.status === 'DELIVERED'
@@ -89,16 +85,16 @@ export const ShipmentDetailPage: React.FC = () => {
                     : 'bg-sky-500/10 text-sky-300 border-sky-500/30'
                 }`}
               >
-                {selectedShipment.status}
+                [ {selectedShipment.status} ]
               </span>
-              <span className="bg-slate-800 text-amber-400 text-xs px-2.5 py-1 rounded-lg font-mono border border-slate-700 font-bold">
-                Stream Version #{selectedShipment.latestVersion || 1}
+              <span className="bg-[#010f1f] text-[#adc6ff] text-xs px-2.5 py-1 rounded font-mono border border-[#273647] font-bold">
+                v{selectedShipment.latestVersion || 1}
               </span>
             </div>
 
-            <p className="text-xs text-slate-400 font-mono mt-1">
-              Carrier: <span className="text-slate-200 font-semibold">{selectedShipment.carrier}</span>{' '}
-              • Vessel: <span className="text-slate-200 font-semibold">{selectedShipment.vessel || 'N/A'}</span>
+            <p className="text-xs text-[#8c909f] font-mono mt-1">
+              Carrier: <span className="text-[#d4e4fa] font-semibold">{selectedShipment.carrier}</span>{' '}
+              • Vessel: <span className="text-[#d4e4fa] font-semibold">{selectedShipment.vessel || 'N/A'}</span>
             </p>
           </div>
 
@@ -106,7 +102,7 @@ export const ShipmentDetailPage: React.FC = () => {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsRecordModalOpen(true)}
-              className="bg-teal-600 hover:bg-teal-500 text-white px-4 py-2 rounded-xl text-xs font-medium transition-all shadow-md shadow-teal-900/30 font-mono flex items-center gap-2"
+              className="bg-[#4d8eff] hover:bg-[#3b82f6] text-[#00285d] font-bold px-4 py-2 rounded text-xs transition-all shadow font-mono flex items-center gap-2"
             >
               <Send className="w-3.5 h-3.5" />
               <span>Dispatch CQRS Command</span>
@@ -114,62 +110,62 @@ export const ShipmentDetailPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Route Progress bar / Details Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 bg-slate-950 p-4 rounded-xl border border-slate-800 font-mono text-xs">
+        {/* Route Details Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 bg-[#010f1f] p-4 rounded border border-[#1c2b3c] font-mono text-xs">
           <div>
-            <div className="text-slate-500 mb-1">Port of Origin</div>
-            <div className="font-semibold text-slate-200">{selectedShipment.origin}</div>
+            <div className="text-[#8c909f] mb-1">Port of Origin</div>
+            <div className="font-semibold text-[#d4e4fa]">{selectedShipment.origin}</div>
           </div>
 
           <div>
-            <div className="text-slate-500 mb-1">Port of Destination</div>
-            <div className="font-semibold text-slate-200">{selectedShipment.destination}</div>
+            <div className="text-[#8c909f] mb-1">Port of Destination</div>
+            <div className="font-semibold text-[#d4e4fa]">{selectedShipment.destination}</div>
           </div>
 
           <div>
-            <div className="text-slate-500 mb-1">Current Location</div>
-            <div className="font-semibold text-teal-400 flex items-center gap-1">
-              <MapPin className="w-3.5 h-3.5 text-teal-400 shrink-0" />
+            <div className="text-[#8c909f] mb-1">Current Location</div>
+            <div className="font-semibold text-[#adc6ff] flex items-center gap-1">
+              <MapPin className="w-3.5 h-3.5 text-[#4d8eff] shrink-0" />
               <span className="truncate">{selectedShipment.currentLocation}</span>
             </div>
           </div>
 
           <div>
-            <div className="text-slate-500 mb-1">Telemetry Status</div>
-            <div className="font-semibold text-slate-200 flex items-center gap-1">
+            <div className="text-[#8c909f] mb-1">Telemetry Status</div>
+            <div className="font-semibold text-[#d4e4fa] flex items-center gap-1">
               {selectedShipment.lastTemperature !== undefined ? (
                 <span
                   className={`flex items-center gap-1 ${
                     selectedShipment.lastTemperature > 30 || selectedShipment.lastTemperature < -10
                       ? 'text-amber-400 font-bold'
-                      : 'text-slate-200'
+                      : 'text-[#d4e4fa]'
                   }`}
                 >
                   <ThermometerSnowflake className="w-3.5 h-3.5" />
                   {selectedShipment.lastTemperature}°C
                 </span>
               ) : (
-                <span className="text-slate-500">Normal Range</span>
+                <span className="text-[#8c909f]">Normal Range</span>
               )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Main Section: Chronological Immutable Event Timeline */}
-      <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-6">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+      {/* Main Event Stream Section */}
+      <div className="bg-[#122131] p-6 rounded border border-[#1c2b3c] space-y-6">
+        <div className="flex items-center justify-between border-b border-[#1c2b3c] pb-4">
           <div>
             <div className="flex items-center gap-2">
-              <Lock className="w-4 h-4 text-teal-400" />
-              <h2 className="font-bold text-slate-100 text-base">Immutable Event Store Stream</h2>
+              <Lock className="w-4 h-4 text-[#4d8eff]" />
+              <h2 className="font-bold text-[#d4e4fa] text-base font-sans">Immutable Event Store Stream</h2>
             </div>
-            <p className="text-xs text-slate-400 font-mono mt-0.5">
+            <p className="text-xs text-[#8c909f] font-mono mt-0.5">
               Append-Only Ledger Stream • {safeEvents.length} Historical Events Persisted
             </p>
           </div>
 
-          <div className="text-xs text-slate-400 font-mono bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800">
+          <div className="text-xs text-[#8c909f] font-mono bg-[#010f1f] px-3 py-1.5 rounded border border-[#1c2b3c]">
             Click any event to inspect full JSON payload
           </div>
         </div>

@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { BarChart3, Database, ShieldAlert, Activity, TrendingUp, Layers } from 'lucide-react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import { useShipmentStore } from '../store/useShipmentStore';
 
@@ -35,41 +34,42 @@ export const AnalyticsPage: React.FC = () => {
 
   return (
     <div className="space-y-6 animate-fadeIn">
-      <div className="bg-slate-900/80 p-6 rounded-2xl border border-slate-800">
-        <h1 className="text-xl font-bold text-slate-100">Event Store Analytics</h1>
-        <p className="text-xs text-slate-400 font-mono mt-1">
+      <div className="bg-[#0d1c2d] p-6 rounded border border-[#1c2b3c]">
+        <h1 className="text-xl font-bold text-[#d4e4fa] font-sans">Event Store Analytics</h1>
+        <p className="text-xs text-[#8c909f] font-mono mt-1">
           Historical Event Volume & Aggregate Stream Metrics
         </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Event Types Breakdown */}
-        <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
+        <div className="bg-[#122131] p-6 rounded border border-[#1c2b3c] space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="font-bold text-slate-100 text-sm">Event Volume by Type</h3>
-            <span className="text-xs text-slate-500 font-mono">Immutable Store</span>
+            <h3 className="font-bold text-[#d4e4fa] text-sm font-sans">Event Volume by Type</h3>
+            <span className="text-xs text-[#8c909f] font-mono">Immutable Store</span>
           </div>
 
           <div className="h-64 w-full min-h-[200px]">
             {eventChartData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={eventChartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                  <XAxis dataKey="name" stroke="#64748b" fontSize={10} tickLine={false} />
-                  <YAxis stroke="#64748b" fontSize={10} tickLine={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1c2b3c" />
+                  <XAxis dataKey="name" stroke="#8c909f" fontSize={10} tickLine={false} />
+                  <YAxis stroke="#8c909f" fontSize={10} tickLine={false} />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: '#090d16',
-                      borderColor: '#1e293b',
-                      borderRadius: '8px',
+                      backgroundColor: '#010f1f',
+                      borderColor: '#1c2b3c',
+                      borderRadius: '4px',
                       fontSize: '12px',
+                      fontFamily: 'JetBrains Mono',
                     }}
                   />
-                  <Bar dataKey="count" fill="#14b8a6" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="count" fill="#4d8eff" radius={[2, 2, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="flex items-center justify-center h-full text-xs text-slate-500 font-mono">
+              <div className="flex items-center justify-center h-full text-xs text-[#8c909f] font-mono">
                 No events recorded for charts
               </div>
             )}
@@ -77,32 +77,33 @@ export const AnalyticsPage: React.FC = () => {
         </div>
 
         {/* Aggregate Stream Length */}
-        <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
+        <div className="bg-[#122131] p-6 rounded border border-[#1c2b3c] space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="font-bold text-slate-100 text-sm">Stream Length by Aggregate ID</h3>
-            <span className="text-xs text-slate-500 font-mono">CQRS Projections</span>
+            <h3 className="font-bold text-[#d4e4fa] text-sm font-sans">Stream Length by Aggregate ID</h3>
+            <span className="text-xs text-[#8c909f] font-mono">CQRS Projections</span>
           </div>
 
           <div className="h-64 w-full min-h-[200px]">
             {carrierData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={carrierData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                  <XAxis dataKey="name" stroke="#64748b" fontSize={10} tickLine={false} />
-                  <YAxis stroke="#64748b" fontSize={10} tickLine={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1c2b3c" />
+                  <XAxis dataKey="name" stroke="#8c909f" fontSize={10} tickLine={false} />
+                  <YAxis stroke="#8c909f" fontSize={10} tickLine={false} />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: '#090d16',
-                      borderColor: '#1e293b',
-                      borderRadius: '8px',
+                      backgroundColor: '#010f1f',
+                      borderColor: '#1c2b3c',
+                      borderRadius: '4px',
                       fontSize: '12px',
+                      fontFamily: 'JetBrains Mono',
                     }}
                   />
-                  <Bar dataKey="events" fill="#38bdf8" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="events" fill="#38bdf8" radius={[2, 2, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="flex items-center justify-center h-full text-xs text-slate-500 font-mono">
+              <div className="flex items-center justify-center h-full text-xs text-[#8c909f] font-mono">
                 No stream data available
               </div>
             )}

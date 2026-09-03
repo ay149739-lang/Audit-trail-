@@ -1,5 +1,5 @@
-import React from 'react';
-import { X, Code2, Lock, Clock, Tag, Database, Copy, Check } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Code2, Lock, Clock, Copy, Check, Database } from 'lucide-react';
 import { IEvent } from '../types';
 
 interface EventPayloadModalProps {
@@ -8,7 +8,7 @@ interface EventPayloadModalProps {
 }
 
 export const EventPayloadModal: React.FC<EventPayloadModalProps> = ({ event, onClose }) => {
-  const [copied, setCopied] = React.useState(false);
+  const [copied, setCopied] = useState(false);
 
   if (!event) return null;
 
@@ -19,86 +19,86 @@ export const EventPayloadModal: React.FC<EventPayloadModalProps> = ({ event, onC
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl animate-fadeIn">
+    <div className="fixed inset-0 z-50 bg-[#051424]/85 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-[#0d1c2d] border border-[#273647] rounded-lg w-full max-w-2xl overflow-hidden shadow-2xl animate-fadeIn">
         {/* Header */}
-        <div className="bg-slate-950 px-6 py-4 border-b border-slate-800 flex items-center justify-between">
+        <div className="bg-[#010f1f] px-6 py-3.5 border-b border-[#1c2b3c] flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Code2 className="w-5 h-5 text-teal-400" />
-            <h3 className="font-bold text-slate-100 text-base">Immutable Event Payload Inspector</h3>
+            <Code2 className="w-4 h-4 text-[#4d8eff]" />
+            <h3 className="font-bold text-[#d4e4fa] text-sm font-sans">JSON Event Payload Inspector</h3>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors"
+            className="p-1 rounded text-[#8c909f] hover:text-[#d4e4fa] hover:bg-[#1c2b3c] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Modal Body */}
-        <div className="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
+        <div className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
           {/* Metadata Cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono text-xs">
-            <div className="bg-slate-950 p-3 rounded-lg border border-slate-800">
-              <div className="text-slate-500 mb-1">Aggregate ID</div>
-              <div className="font-bold text-teal-400 truncate">{event.aggregateId}</div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 font-mono text-xs">
+            <div className="bg-[#010f1f] p-2.5 rounded border border-[#1c2b3c]">
+              <div className="text-[#8c909f] text-[10px] uppercase mb-0.5">Aggregate ID</div>
+              <div className="font-bold text-[#adc6ff] truncate">{event.aggregateId}</div>
             </div>
 
-            <div className="bg-slate-950 p-3 rounded-lg border border-slate-800">
-              <div className="text-slate-500 mb-1">Event Type</div>
-              <div className="font-bold text-slate-200 truncate">{event.eventType}</div>
+            <div className="bg-[#010f1f] p-2.5 rounded border border-[#1c2b3c]">
+              <div className="text-[#8c909f] text-[10px] uppercase mb-0.5">Event Type</div>
+              <div className="font-bold text-[#d4e4fa] truncate">{event.eventType}</div>
             </div>
 
-            <div className="bg-slate-950 p-3 rounded-lg border border-slate-800">
-              <div className="text-slate-500 mb-1">Stream Version</div>
+            <div className="bg-[#010f1f] p-2.5 rounded border border-[#1c2b3c]">
+              <div className="text-[#8c909f] text-[10px] uppercase mb-0.5">Stream Version</div>
               <div className="font-bold text-amber-400">v{event.version}</div>
             </div>
 
-            <div className="bg-slate-950 p-3 rounded-lg border border-slate-800">
-              <div className="text-slate-500 mb-1">Store Immutability</div>
-              <div className="flex items-center gap-1 font-semibold text-emerald-400">
+            <div className="bg-[#010f1f] p-2.5 rounded border border-[#1c2b3c]">
+              <div className="text-[#8c909f] text-[10px] uppercase mb-0.5">Store Guarantee</div>
+              <div className="flex items-center gap-1 font-semibold text-[#10b981]">
                 <Lock className="w-3 h-3" />
-                <span>Append-Only</span>
+                <span>Immutable</span>
               </div>
             </div>
           </div>
 
           {/* Timestamp Info */}
-          <div className="flex items-center gap-2 text-xs text-slate-400 font-mono bg-slate-950/60 p-2.5 rounded-lg border border-slate-800/80">
-            <Clock className="w-4 h-4 text-slate-500" />
+          <div className="flex items-center gap-2 text-xs text-[#8c909f] font-mono bg-[#010f1f] p-2.5 rounded border border-[#1c2b3c]">
+            <Clock className="w-4 h-4 text-[#8c909f]" />
             <span>Persisted Timestamp:</span>
-            <span className="text-slate-200">{new Date(event.timestamp).toISOString()}</span>
+            <span className="text-[#d4e4fa]">{new Date(event.timestamp).toISOString()}</span>
           </div>
 
-          {/* JSON Tree View */}
+          {/* Code Block Inspector (Stitch JetBrains Mono Spec) */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-mono text-slate-400 uppercase tracking-wide">
+              <span className="text-[11px] font-mono text-[#8c909f] uppercase tracking-wider">
                 Raw Event Payload (JSON)
               </span>
               <button
                 onClick={handleCopy}
-                className="flex items-center gap-1 text-xs text-teal-400 hover:text-teal-300 font-mono"
+                className="flex items-center gap-1 text-xs text-[#4d8eff] hover:underline font-mono"
               >
                 {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                 <span>{copied ? 'Copied to Clipboard' : 'Copy JSON'}</span>
               </button>
             </div>
-            <pre className="bg-slate-950 p-4 rounded-xl border border-slate-800 font-mono text-xs text-teal-300/90 overflow-x-auto leading-relaxed max-h-72">
+            <pre className="bg-[#010f1f] p-4 rounded border border-[#1c2b3c] font-mono text-xs text-[#adc6ff] overflow-x-auto leading-relaxed max-h-72">
               {JSON.stringify(event, null, 2)}
             </pre>
           </div>
         </div>
 
         {/* Modal Footer */}
-        <div className="bg-slate-950 px-6 py-3 border-t border-slate-800 flex items-center justify-between text-xs font-mono text-slate-500">
-          <div className="flex items-center gap-1">
-            <Database className="w-3.5 h-3.5 text-slate-500" />
+        <div className="bg-[#010f1f] px-6 py-3 border-t border-[#1c2b3c] flex items-center justify-between text-xs font-mono text-[#8c909f]">
+          <div className="flex items-center gap-1.5 text-[11px]">
+            <Database className="w-3.5 h-3.5 text-[#8c909f]" />
             <span>MongoDB Collection: events</span>
           </div>
           <button
             onClick={onClose}
-            className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-1.5 rounded-lg text-xs transition-colors"
+            className="bg-[#1c2b3c] hover:bg-[#273647] text-[#d4e4fa] px-3.5 py-1.5 rounded text-xs transition-colors font-mono"
           >
             Close Inspector
           </button>
