@@ -36,15 +36,15 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenNewShipmentModal }) => {
     : [];
 
   return (
-    <header className="sticky top-0 z-30 bg-[#0d1c2d]/95 backdrop-blur-md border-b border-[#1c2b3c] px-4 lg:px-8 py-3">
+    <header className="sticky top-0 z-30 bg-white border-b border-[#DDDCD6] px-4 lg:px-8 py-3 shadow-sm">
       <div className="flex items-center justify-between gap-4">
         {/* Left Title / Branding */}
         <Logo />
 
-        {/* Search Bar connected to CQRS Backend */}
+        {/* Search Bar connected to Backend */}
         <div className="flex-1 max-w-md relative">
           <form onSubmit={handleSearchSubmit} className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8c909f]" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6B6B66]" />
             <input
               type="text"
               placeholder="Search shipment ID (e.g. AT-2048)..."
@@ -54,14 +54,14 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenNewShipmentModal }) => {
                 setIsDropdownOpen(true);
               }}
               onFocus={() => setIsDropdownOpen(true)}
-              className="w-full bg-[#010f1f] border border-[#273647] rounded pl-9 pr-4 py-2 text-sm text-[#d4e4fa] placeholder-[#8c909f] focus:outline-none focus:border-[#4d8eff] focus:ring-1 focus:ring-[#4d8eff]/30 transition-all font-mono"
+              className="w-full bg-[#FAF9F5] border border-[#DDDCD6] rounded-md pl-9 pr-4 py-2 text-sm text-[#252525] placeholder-[#6B6B66] focus:outline-none focus:border-[#E56B2F] focus:ring-1 focus:ring-[#E56B2F]/30 transition-all font-mono"
             />
           </form>
 
           {/* Quick Search Dropdown */}
           {isDropdownOpen && currentQuery && (
-            <div className="absolute top-full left-0 right-0 mt-1 bg-[#0d1c2d] border border-[#273647] rounded shadow-2xl overflow-hidden z-50 animate-fadeIn">
-              <div className="p-2.5 text-[11px] text-[#8c909f] font-mono border-b border-[#1c2b3c]">
+            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-[#DDDCD6] rounded-md shadow-lg overflow-hidden z-50 animate-fadeIn">
+              <div className="p-2.5 text-[11px] text-[#6B6B66] font-mono border-b border-[#DDDCD6]">
                 Matching Aggregate IDs:
               </div>
               {filteredMatches.length > 0 ? (
@@ -74,47 +74,47 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenNewShipmentModal }) => {
                         navigate(`/shipments/${shipment.aggregateId}`);
                         setIsDropdownOpen(false);
                       }}
-                      className="w-full text-left px-3 py-2.5 hover:bg-[#1c2b3c] flex items-center justify-between transition-colors text-xs border-b border-[#1c2b3c]/60 last:border-0"
+                      className="w-full text-left px-3 py-2.5 hover:bg-[#FAF9F5] flex items-center justify-between transition-colors text-xs border-b border-[#DDDCD6]/60 last:border-0"
                     >
                       <div>
-                        <div className="font-mono font-bold text-[#adc6ff]">
+                        <div className="font-mono font-bold text-[#E56B2F]">
                           {shipment.aggregateId}
                         </div>
-                        <div className="text-[#8c909f] text-[11px]">
+                        <div className="text-[#6B6B66] text-[11px]">
                           {shipment.origin} → {shipment.destination}
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="bg-[#010f1f] text-[#bec6e0] px-2 py-0.5 rounded font-mono text-[10px] border border-[#273647]">
+                        <span className="bg-[#FAF9F5] text-[#252525] px-2 py-0.5 rounded font-mono text-[10px] border border-[#DDDCD6]">
                           v{shipment.latestVersion || 1}
                         </span>
-                        <ArrowRight className="w-3.5 h-3.5 text-[#8c909f]" />
+                        <ArrowRight className="w-3.5 h-3.5 text-[#6B6B66]" />
                       </div>
                     </button>
                   ))}
                 </div>
               ) : (
-                <div className="p-3 text-xs text-[#8c909f] font-mono text-center">
-                  Press <kbd className="px-1.5 py-0.5 bg-[#010f1f] border border-[#273647] rounded text-[#d4e4fa]">Enter</kbd> to query aggregate store for <span className="text-[#4d8eff] font-mono">"{currentQuery}"</span>
+                <div className="p-3 text-xs text-[#6B6B66] font-mono text-center">
+                  Press <kbd className="px-1.5 py-0.5 bg-[#FAF9F5] border border-[#DDDCD6] rounded text-[#252525]">Enter</kbd> to query aggregate database for <span className="text-[#E56B2F] font-mono">"{currentQuery}"</span>
                 </div>
               )}
             </div>
           )}
         </div>
 
-        {/* Right Actions */}
+        {/* Right Actions & Node Status */}
         <div className="flex items-center gap-3">
           <button
             onClick={onOpenNewShipmentModal}
-            className="hidden sm:flex items-center gap-2 bg-[#4d8eff] hover:bg-[#3b82f6] text-[#00285d] font-bold px-3.5 py-1.5 rounded text-xs transition-all shadow-md font-mono"
+            className="hidden sm:flex items-center gap-2 bg-[#E56B2F] hover:bg-[#D45A1E] text-white px-3.5 py-1.5 rounded-md text-xs font-semibold transition-all shadow-xs font-sans"
           >
             <Plus className="w-4 h-4" />
-            <span>Dispatch Shipment</span>
+            <span>New Shipment</span>
           </button>
 
-          <div className="hidden md:flex items-center gap-2 bg-[#010f1f] border border-[#273647] px-3 py-1.5 rounded text-xs text-[#d4e4fa] font-mono">
-            <span className="w-2 h-2 rounded-full bg-[#10b981] animate-pulse"></span>
-            <span>Ledger Online</span>
+          <div className="hidden md:flex items-center gap-2 bg-[#FAF9F5] border border-[#DDDCD6] px-3 py-1.5 rounded-md text-xs text-[#252525] font-mono">
+            <span className="w-2 h-2 rounded-full bg-[#3F8F6B]"></span>
+            <span>API Online</span>
           </div>
         </div>
       </div>

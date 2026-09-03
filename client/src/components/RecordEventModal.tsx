@@ -73,43 +73,43 @@ export const RecordEventModal: React.FC<RecordEventModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#051424]/85 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-[#0d1c2d] border border-[#273647] rounded-lg w-full max-w-lg overflow-hidden shadow-2xl animate-fadeIn">
-        {/* Header */}
-        <div className="bg-[#010f1f] px-6 py-3.5 border-b border-[#1c2b3c] flex items-center justify-between">
+    <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-[#DDDCD6] rounded-md w-full max-w-lg overflow-hidden shadow-xl animate-fadeIn">
+        {/* Modal Header */}
+        <div className="bg-[#FAF9F5] px-6 py-4 border-b border-[#DDDCD6] flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <Send className="w-4 h-4 text-[#4d8eff]" />
-              <h3 className="font-bold text-[#d4e4fa] text-sm font-sans">Dispatch CQRS Command</h3>
+              <Send className="w-4 h-4 text-[#E56B2F]" />
+              <h3 className="font-bold text-[#252525] text-base">Dispatch CQRS Command</h3>
             </div>
-            <p className="text-xs text-[#8c909f] font-mono mt-0.5">
-              Append Immutable Event to <span className="text-[#adc6ff] font-bold">{aggregateId}</span>
+            <p className="text-xs text-[#6B6B66] font-mono mt-0.5">
+              Append Immutable Event to <span className="text-[#E56B2F] font-bold">{aggregateId}</span>
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded text-[#8c909f] hover:text-[#d4e4fa] hover:bg-[#1c2b3c]"
+            className="p-1 rounded text-[#6B6B66] hover:text-[#252525] hover:bg-[#DDDCD6]/40"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-6 space-y-4 font-sans text-xs">
           {errorMsg && (
-            <div className="bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs p-3 rounded flex items-center gap-2 font-mono">
-              <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+            <div className="bg-[#C94A4A]/10 border border-[#C94A4A]/30 text-[#C94A4A] text-xs p-3 rounded-md flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-[#C94A4A] shrink-0" />
               <span>{errorMsg}</span>
             </div>
           )}
 
           {/* Mode Switcher */}
-          <div className="flex bg-[#010f1f] p-1 rounded border border-[#1c2b3c] text-xs font-mono">
+          <div className="flex bg-[#FAF9F5] p-1 rounded-md border border-[#DDDCD6] text-xs font-mono">
             <button
               type="button"
               onClick={() => setMode('MOVE')}
-              className={`flex-1 py-1.5 rounded transition-all ${
-                mode === 'MOVE' ? 'bg-[#1c2b3c] text-[#4d8eff] border border-[#273647] font-bold' : 'text-[#8c909f] hover:text-[#d4e4fa]'
+              className={`flex-1 py-2 rounded-md transition-all ${
+                mode === 'MOVE' ? 'bg-white text-[#E56B2F] border border-[#DDDCD6] font-bold shadow-xs' : 'text-[#6B6B66] hover:text-[#252525]'
               }`}
             >
               MOVE_SHIPMENT Command
@@ -117,8 +117,8 @@ export const RecordEventModal: React.FC<RecordEventModalProps> = ({
             <button
               type="button"
               onClick={() => setMode('CUSTOM')}
-              className={`flex-1 py-1.5 rounded transition-all ${
-                mode === 'CUSTOM' ? 'bg-[#1c2b3c] text-amber-300 border border-[#273647] font-bold' : 'text-[#8c909f] hover:text-[#d4e4fa]'
+              className={`flex-1 py-2 rounded-md transition-all ${
+                mode === 'CUSTOM' ? 'bg-white text-[#D9A441] border border-[#DDDCD6] font-bold shadow-xs' : 'text-[#6B6B66] hover:text-[#252525]'
               }`}
             >
               RECORD_EVENT Command
@@ -127,17 +127,17 @@ export const RecordEventModal: React.FC<RecordEventModalProps> = ({
 
           {mode === 'MOVE' ? (
             <div>
-              <label className="block text-xs font-mono text-[#8c909f] mb-1">
-                Target Location / Terminal <span className="text-rose-400">*</span>
+              <label className="block text-xs font-mono text-[#6B6B66] mb-1">
+                Target Location / Terminal <span className="text-[#C94A4A]">*</span>
               </label>
               <div className="relative">
-                <MapPin className="absolute left-3 top-2.5 w-4 h-4 text-[#8c909f]" />
+                <MapPin className="absolute left-3 top-2.5 w-4 h-4 text-[#6B6B66]" />
                 <input
                   type="text"
                   placeholder="e.g. Port of Antwerp, Berth 12"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  className="w-full bg-[#010f1f] border border-[#273647] rounded pl-9 pr-3 py-2 text-sm text-[#d4e4fa] focus:border-[#4d8eff] focus:outline-none font-mono"
+                  className="w-full bg-[#FAF9F5] border border-[#DDDCD6] rounded-md pl-9 pr-3 py-2 text-sm text-[#252525] focus:border-[#E56B2F] focus:outline-none"
                   required
                 />
               </div>
@@ -145,13 +145,13 @@ export const RecordEventModal: React.FC<RecordEventModalProps> = ({
           ) : (
             <>
               <div>
-                <label className="block text-xs font-mono text-[#8c909f] mb-1">
-                  Domain Event Type <span className="text-rose-400">*</span>
+                <label className="block text-xs font-mono text-[#6B6B66] mb-1">
+                  Domain Event Type <span className="text-[#C94A4A]">*</span>
                 </label>
                 <select
                   value={eventType}
                   onChange={(e) => setEventType(e.target.value)}
-                  className="w-full bg-[#010f1f] border border-[#273647] rounded px-3 py-2 text-sm text-[#d4e4fa] focus:border-[#4d8eff] focus:outline-none font-mono"
+                  className="w-full bg-[#FAF9F5] border border-[#DDDCD6] rounded-md px-3 py-2 text-sm text-[#252525] focus:border-[#E56B2F] focus:outline-none font-mono"
                 >
                   <option value="TEMPERATURE_SPIKE">TEMPERATURE_SPIKE</option>
                   <option value="ARRIVED_AT_PORT">ARRIVED_AT_PORT</option>
@@ -163,18 +163,18 @@ export const RecordEventModal: React.FC<RecordEventModalProps> = ({
 
               {eventType === 'TEMPERATURE_SPIKE' && (
                 <div>
-                  <label className="block text-xs font-mono text-[#8c909f] mb-1">
+                  <label className="block text-xs font-mono text-[#6B6B66] mb-1">
                     Recorded Temperature (°C)
                   </label>
                   <div className="relative">
-                    <ThermometerSnowflake className="absolute left-3 top-2.5 w-4 h-4 text-amber-400" />
+                    <ThermometerSnowflake className="absolute left-3 top-2.5 w-4 h-4 text-[#C94A4A]" />
                     <input
                       type="number"
                       step="0.1"
                       placeholder="-12.5"
                       value={temperature}
                       onChange={(e) => setTemperature(e.target.value)}
-                      className="w-full bg-[#010f1f] border border-[#273647] rounded pl-9 pr-3 py-2 text-sm text-[#d4e4fa] focus:border-amber-500 focus:outline-none font-mono"
+                      className="w-full bg-[#FAF9F5] border border-[#DDDCD6] rounded-md pl-9 pr-3 py-2 text-sm text-[#252525] focus:border-[#C94A4A] focus:outline-none font-mono"
                     />
                   </div>
                 </div>
@@ -183,40 +183,40 @@ export const RecordEventModal: React.FC<RecordEventModalProps> = ({
           )}
 
           <div>
-            <label className="block text-xs font-mono text-[#8c909f] mb-1">Operator Signature</label>
+            <label className="block text-xs font-mono text-[#6B6B66] mb-1">Operator Signature</label>
             <input
               type="text"
               placeholder="e.g. Captain Aris Thorne"
               value={operator}
               onChange={(e) => setOperator(e.target.value)}
-              className="w-full bg-[#010f1f] border border-[#273647] rounded px-3 py-2 text-sm text-[#d4e4fa] focus:border-[#4d8eff] focus:outline-none font-mono"
+              className="w-full bg-[#FAF9F5] border border-[#DDDCD6] rounded-md px-3 py-2 text-sm text-[#252525] focus:border-[#E56B2F] focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-mono text-[#8c909f] mb-1">Audit Log Notes</label>
+            <label className="block text-xs font-mono text-[#6B6B66] mb-1">Audit Log Notes</label>
             <textarea
               rows={2}
               placeholder="Add contextual details for this immutable event entry..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full bg-[#010f1f] border border-[#273647] rounded px-3 py-2 text-sm text-[#d4e4fa] focus:border-[#4d8eff] focus:outline-none font-mono"
+              className="w-full bg-[#FAF9F5] border border-[#DDDCD6] rounded-md px-3 py-2 text-sm text-[#252525] focus:border-[#E56B2F] focus:outline-none"
             />
           </div>
 
           {/* Submit Actions */}
-          <div className="pt-2 flex items-center justify-end gap-2 border-t border-[#1c2b3c]">
+          <div className="pt-2 flex items-center justify-end gap-2 border-t border-[#DDDCD6]">
             <button
               type="button"
               onClick={onClose}
-              className="px-3.5 py-1.5 rounded text-xs text-[#8c909f] hover:bg-[#1c2b3c] font-mono"
+              className="px-4 py-2 rounded-md text-xs text-[#6B6B66] hover:bg-[#FAF9F5] font-mono"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className="bg-[#4d8eff] hover:bg-[#3b82f6] text-[#00285d] font-bold px-4 py-2 rounded text-xs transition-all shadow font-mono flex items-center gap-1.5"
+              className="bg-[#E56B2F] hover:bg-[#D45A1E] text-white px-4 py-2 rounded-md text-xs font-semibold transition-all shadow-xs font-sans flex items-center gap-1.5"
             >
               {isLoading ? (
                 <span>Appending Event...</span>
