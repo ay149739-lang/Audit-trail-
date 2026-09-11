@@ -15,7 +15,7 @@ export const SettingsPage: React.FC = () => {
         {/* CQRS Info Card */}
         <div className="bg-white p-6 rounded-md border border-[#DDDCD6] shadow-sm space-y-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-[#E56B2F]/10 rounded-md border border-[#E56B2F]/20 text-[#E56B2F]">
+            <div  className="p-2 bg-[#E56B2F]/10 rounded-md border border-[#E56B2F]/20 text-[#E56B2F]">
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
