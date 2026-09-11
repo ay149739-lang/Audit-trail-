@@ -23,7 +23,7 @@ export const EventTimeline: React.FC<EventTimelineProps> = ({ events, onSelectEv
   if (!events || events.length === 0) {
     return (
       <div className="p-8 bg-[#FAF9F5] rounded-md border border-[#DDDCD6] text-center">
-        <Clock className="w-8 h-8 text-[#6B6B66] mx-auto mb-2" />
+        <Clock className="w-8 h-8 text-[#6B6B66] mx-auto mb-2" /> 
         <p className="text-sm text-[#6B6B66] font-mono">No events recorded in store for this aggregate yet.</p>
       </div>
     );
