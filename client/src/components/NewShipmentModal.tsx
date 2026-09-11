@@ -8,7 +8,7 @@ interface NewShipmentModalProps {
   onClose: () => void;
 }
 
-export const NewShipmentModal: React.FC<NewShipmentModalProps> = ({ isOpen, onClose }) => {
+export const NewShipmentModal:React.FC<NewShipmentModalProps> = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const { createShipment, isLoading } = useShipmentStore();
 
