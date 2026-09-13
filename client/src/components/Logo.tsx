@@ -17,7 +17,7 @@ export const Logo: React.FC<LogoProps> = ({ size = 26, showText = true }) => {
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           className="text-[#E56B2F]"
-        >
+        > 
           <path
             d="M16 3L27.25 9.5V22.5L16 29L4.75 22.5V9.5L16 3Z"
             stroke="currentColor"
