@@ -15,7 +15,7 @@ const api = axios.create({
 });
 
 export const shipmentApi = {
-  // Queries
+  
   getShipments: async (): Promise<ShipmentAggregate[]> => {
     const res = await api.get('/shipments');
     return res.data.data;
