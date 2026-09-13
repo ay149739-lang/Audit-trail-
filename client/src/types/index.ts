@@ -1,6 +1,6 @@
 export interface EventPayload {
   origin?: string;
-  destination?: string;
+  destination?: string; 
   carrier?: string;
   vessel?: string;
   location?: string;

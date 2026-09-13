@@ -15,7 +15,7 @@ export const EventPayloadModal: React.FC<EventPayloadModalProps> = ({ event, onC
   const handleCopy = () => {
     navigator.clipboard.writeText(JSON.stringify(event, null, 2));
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setTimeout(() => setCopied(false),  2000);
   };
 
   return (

@@ -13,7 +13,7 @@ export const RecordEventModal: React.FC<RecordEventModalProps> = ({
   isOpen,
   onClose,
 }) => {
-  const { moveShipment, recordEvent, isLoading } = useShipmentStore();
+  const { moveShipment, recordEvent, isLoading} = useShipmentStore();
 
   const [mode, setMode] = useState<'MOVE' | 'CUSTOM'>('MOVE');
   const [location, setLocation] = useState('');

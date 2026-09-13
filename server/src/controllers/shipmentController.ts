@@ -3,12 +3,7 @@ import { ShipmentCommandHandler } from '../commands/shipmentCommands';
 import { ShipmentQueryHandler } from '../queries/shipmentQueries';
 
 export class ShipmentController {
-  // --- COMMAND CONTROLLERS ---
-
-  /**
-   * POST /api/shipments
-   * Dispatches CreateShipmentCommand
-   */
+  
   static async createShipment(req: Request, res: Response, next: NextFunction) {
     try {
       const { aggregateId, origin, destination, carrier, vessel, operator } = req.body;

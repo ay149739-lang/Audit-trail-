@@ -13,7 +13,7 @@ interface ShipmentState {
   isLoading: boolean;
   error: string | null;
 
-  // Actions
+  
   fetchShipments: () => Promise<void>;
   fetchShipmentById: (id: string) => Promise<void>;
   fetchShipmentStateAt: (id: string, version: number) => Promise<void>;

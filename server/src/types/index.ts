@@ -14,7 +14,7 @@ export interface EventPayload {
   destination?: string;
   carrier?: string;
   vessel?: string;
-  location?: string;
+  location?: string; 
   temperature?: number;
   humidity?: number;
   operator?: string;

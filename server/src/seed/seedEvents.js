@@ -4,7 +4,7 @@ const Event = require('../models/Event');
 const connectDB = require('../config/db');
 
 const seedData = [
-  // SHIP-1001 stream
+
   {
     aggregateId: 'SHIP-1001',
     eventType: 'CONTAINER_CREATED',
