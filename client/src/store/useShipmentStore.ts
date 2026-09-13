@@ -9,7 +9,7 @@ interface ShipmentState {
   isLoading: boolean;
   error: string | null;
 
-  // Actions
+  
   fetchShipments: () => Promise<void>;
   fetchShipmentById: (id: string) => Promise<void>;
   setSearchQuery: (query: string) => void;
