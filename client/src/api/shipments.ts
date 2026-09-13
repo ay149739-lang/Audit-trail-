@@ -31,6 +31,19 @@ export const shipmentApi = {
     return res.data.data;
   },
 
+  getShipmentStateAt: async (
+    id: string,
+    version?: number,
+    timestamp?: string
+  ): Promise<ShipmentAggregate> => {
+    const params: Record<string, any> = {};
+    if (version !== undefined) params.version = version;
+    if (timestamp) params.timestamp = timestamp;
+
+    const res = await api.get(`/shipments/${id}/state-at`, { params });
+    return res.data.data;
+  },
+
   // Commands
   createShipment: async (dto: CreateShipmentDto): Promise<IEvent> => {
     const res = await api.post('/shipments', dto);

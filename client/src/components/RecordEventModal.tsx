@@ -73,22 +73,22 @@ export const RecordEventModal: React.FC<RecordEventModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white border border-[#DDDCD6] rounded-md w-full max-w-lg overflow-hidden shadow-xl animate-fadeIn">
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white dark:bg-[#1F1F1F] border border-[#DDDCD6] dark:border-[#333333] rounded-md w-full max-w-lg overflow-hidden shadow-xl animate-fadeIn font-sans">
         {/* Modal Header */}
-        <div className="bg-[#FAF9F5] px-6 py-4 border-b border-[#DDDCD6] flex items-center justify-between">
+        <div className="bg-[#FAF9F5] dark:bg-[#141414] px-6 py-4 border-b border-[#DDDCD6] dark:border-[#333333] flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <Send className="w-4 h-4 text-[#E56B2F]" />
-              <h3 className="font-bold text-[#252525] text-base">Dispatch CQRS Command</h3>
+              <Send className="w-4 h-4 text-[#E56B2F] dark:text-[#E5A93C]" />
+              <h3 className="font-bold text-[#252525] dark:text-[#F5F5F0] text-base">Dispatch CQRS Command</h3>
             </div>
-            <p className="text-xs text-[#6B6B66] font-mono mt-0.5">
-              Append Immutable Event to <span className="text-[#E56B2F] font-bold">{aggregateId}</span>
+            <p className="text-xs text-[#6B6B66] dark:text-[#9E9E98] font-mono mt-0.5">
+              Append Immutable Event to <span className="text-[#E56B2F] dark:text-[#E5A93C] font-bold">{aggregateId}</span>
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded text-[#6B6B66] hover:text-[#252525] hover:bg-[#DDDCD6]/40"
+            className="p-1 rounded text-[#6B6B66] dark:text-[#9E9E98] hover:text-[#252525] dark:hover:text-[#F5F5F0]"
           >
             <X className="w-5 h-5" />
           </button>
@@ -104,12 +104,12 @@ export const RecordEventModal: React.FC<RecordEventModalProps> = ({
           )}
 
           {/* Mode Switcher */}
-          <div className="flex bg-[#FAF9F5] p-1 rounded-md border border-[#DDDCD6] text-xs font-mono">
+          <div className="flex bg-[#FAF9F5] dark:bg-[#141414] p-1 rounded-md border border-[#DDDCD6] dark:border-[#333333] text-xs font-mono">
             <button
               type="button"
               onClick={() => setMode('MOVE')}
               className={`flex-1 py-2 rounded-md transition-all ${
-                mode === 'MOVE' ? 'bg-white text-[#E56B2F] border border-[#DDDCD6] font-bold shadow-xs' : 'text-[#6B6B66] hover:text-[#252525]'
+                mode === 'MOVE' ? 'bg-white dark:bg-[#262626] text-[#E56B2F] dark:text-[#E5A93C] border border-[#DDDCD6] dark:border-[#333333] font-bold shadow-sm' : 'text-[#6B6B66] dark:text-[#9E9E98]'
               }`}
             >
               MOVE_SHIPMENT Command
@@ -118,7 +118,7 @@ export const RecordEventModal: React.FC<RecordEventModalProps> = ({
               type="button"
               onClick={() => setMode('CUSTOM')}
               className={`flex-1 py-2 rounded-md transition-all ${
-                mode === 'CUSTOM' ? 'bg-white text-[#D9A441] border border-[#DDDCD6] font-bold shadow-xs' : 'text-[#6B6B66] hover:text-[#252525]'
+                mode === 'CUSTOM' ? 'bg-white dark:bg-[#262626] text-[#D9A441] dark:text-[#E5A93C] border border-[#DDDCD6] dark:border-[#333333] font-bold shadow-sm' : 'text-[#6B6B66] dark:text-[#9E9E98]'
               }`}
             >
               RECORD_EVENT Command
@@ -127,17 +127,17 @@ export const RecordEventModal: React.FC<RecordEventModalProps> = ({
 
           {mode === 'MOVE' ? (
             <div>
-              <label className="block text-xs font-mono text-[#6B6B66] mb-1">
+              <label className="block text-xs font-mono text-[#6B6B66] dark:text-[#9E9E98] mb-1">
                 Target Location / Terminal <span className="text-[#C94A4A]">*</span>
               </label>
               <div className="relative">
-                <MapPin className="absolute left-3 top-2.5 w-4 h-4 text-[#6B6B66]" />
+                <MapPin className="absolute left-3 top-2.5 w-4 h-4 text-[#6B6B66] dark:text-[#9E9E98]" />
                 <input
                   type="text"
                   placeholder="e.g. Port of Antwerp, Berth 12"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  className="w-full bg-[#FAF9F5] border border-[#DDDCD6] rounded-md pl-9 pr-3 py-2 text-sm text-[#252525] focus:border-[#E56B2F] focus:outline-none"
+                  className="w-full bg-[#FAF9F5] dark:bg-[#141414] border border-[#DDDCD6] dark:border-[#333333] rounded-md pl-9 pr-3 py-2 text-sm text-[#252525] dark:text-[#F5F5F0] focus:border-[#E56B2F] dark:focus:border-[#E5A93C] focus:outline-none font-mono"
                   required
                 />
               </div>
@@ -145,13 +145,13 @@ export const RecordEventModal: React.FC<RecordEventModalProps> = ({
           ) : (
             <>
               <div>
-                <label className="block text-xs font-mono text-[#6B6B66] mb-1">
+                <label className="block text-xs font-mono text-[#6B6B66] dark:text-[#9E9E98] mb-1">
                   Domain Event Type <span className="text-[#C94A4A]">*</span>
                 </label>
                 <select
                   value={eventType}
                   onChange={(e) => setEventType(e.target.value)}
-                  className="w-full bg-[#FAF9F5] border border-[#DDDCD6] rounded-md px-3 py-2 text-sm text-[#252525] focus:border-[#E56B2F] focus:outline-none font-mono"
+                  className="w-full bg-[#FAF9F5] dark:bg-[#141414] border border-[#DDDCD6] dark:border-[#333333] rounded-md px-3 py-2 text-sm text-[#252525] dark:text-[#F5F5F0] focus:border-[#E56B2F] dark:focus:border-[#E5A93C] focus:outline-none font-mono"
                 >
                   <option value="TEMPERATURE_SPIKE">TEMPERATURE_SPIKE</option>
                   <option value="ARRIVED_AT_PORT">ARRIVED_AT_PORT</option>
@@ -163,7 +163,7 @@ export const RecordEventModal: React.FC<RecordEventModalProps> = ({
 
               {eventType === 'TEMPERATURE_SPIKE' && (
                 <div>
-                  <label className="block text-xs font-mono text-[#6B6B66] mb-1">
+                  <label className="block text-xs font-mono text-[#6B6B66] dark:text-[#9E9E98] mb-1">
                     Recorded Temperature (°C)
                   </label>
                   <div className="relative">
@@ -174,7 +174,7 @@ export const RecordEventModal: React.FC<RecordEventModalProps> = ({
                       placeholder="-12.5"
                       value={temperature}
                       onChange={(e) => setTemperature(e.target.value)}
-                      className="w-full bg-[#FAF9F5] border border-[#DDDCD6] rounded-md pl-9 pr-3 py-2 text-sm text-[#252525] focus:border-[#C94A4A] focus:outline-none font-mono"
+                      className="w-full bg-[#FAF9F5] dark:bg-[#141414] border border-[#DDDCD6] dark:border-[#333333] rounded-md pl-9 pr-3 py-2 text-sm text-[#252525] dark:text-[#F5F5F0] focus:border-[#C94A4A] focus:outline-none font-mono"
                     />
                   </div>
                 </div>
@@ -183,40 +183,40 @@ export const RecordEventModal: React.FC<RecordEventModalProps> = ({
           )}
 
           <div>
-            <label className="block text-xs font-mono text-[#6B6B66] mb-1">Operator Signature</label>
+            <label className="block text-xs font-mono text-[#6B6B66] dark:text-[#9E9E98] mb-1">Operator Signature</label>
             <input
               type="text"
               placeholder="e.g. Captain Aris Thorne"
               value={operator}
               onChange={(e) => setOperator(e.target.value)}
-              className="w-full bg-[#FAF9F5] border border-[#DDDCD6] rounded-md px-3 py-2 text-sm text-[#252525] focus:border-[#E56B2F] focus:outline-none"
+              className="w-full bg-[#FAF9F5] dark:bg-[#141414] border border-[#DDDCD6] dark:border-[#333333] rounded-md px-3 py-2 text-sm text-[#252525] dark:text-[#F5F5F0] focus:border-[#E56B2F] dark:focus:border-[#E5A93C] focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-mono text-[#6B6B66] mb-1">Audit Log Notes</label>
+            <label className="block text-xs font-mono text-[#6B6B66] dark:text-[#9E9E98] mb-1">Audit Log Notes</label>
             <textarea
               rows={2}
               placeholder="Add contextual details for this immutable event entry..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full bg-[#FAF9F5] border border-[#DDDCD6] rounded-md px-3 py-2 text-sm text-[#252525] focus:border-[#E56B2F] focus:outline-none"
+              className="w-full bg-[#FAF9F5] dark:bg-[#141414] border border-[#DDDCD6] dark:border-[#333333] rounded-md px-3 py-2 text-sm text-[#252525] dark:text-[#F5F5F0] focus:border-[#E56B2F] dark:focus:border-[#E5A93C] focus:outline-none"
             />
           </div>
 
           {/* Submit Actions */}
-          <div className="pt-2 flex items-center justify-end gap-2 border-t border-[#DDDCD6]">
+          <div className="pt-2 flex items-center justify-end gap-2 border-t border-[#DDDCD6] dark:border-[#333333]">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-md text-xs text-[#6B6B66] hover:bg-[#FAF9F5] font-mono"
+              className="px-4 py-2 rounded-md text-xs text-[#6B6B66] dark:text-[#9E9E98] hover:bg-[#FAF9F5] dark:hover:bg-[#262626] font-mono"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className="bg-[#E56B2F] hover:bg-[#D45A1E] text-white px-4 py-2 rounded-md text-xs font-semibold transition-all shadow-xs font-sans flex items-center gap-1.5"
+              className="bg-[#E56B2F] hover:bg-[#D45A1E] dark:bg-[#E5A93C] dark:hover:bg-[#D49A2A] text-white dark:text-[#141414] px-4 py-2 rounded-md text-xs font-bold transition-all shadow-sm font-sans flex items-center gap-1.5"
             >
               {isLoading ? (
                 <span>Appending Event...</span>

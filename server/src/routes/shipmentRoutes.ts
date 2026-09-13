@@ -10,6 +10,7 @@ router.post('/shipments/:id/events', ShipmentController.recordEvent);
 
 // --- CQRS QUERY ENDPOINTS ---
 router.get('/shipments', ShipmentController.getShipments);
+router.get('/shipments/:id/state-at', ShipmentController.getShipmentStateAt);
 router.get('/shipments/:id', ShipmentController.getShipmentById);
 router.get('/shipments/:id/events', ShipmentController.getEvents);
 

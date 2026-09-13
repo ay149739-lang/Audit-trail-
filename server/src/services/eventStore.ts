@@ -81,6 +81,13 @@ export class EventStoreService {
   }
 
   /**
+   * Retrieve all events stored in memory
+   */
+  static async getAllEventsInMemory(): Promise<IEvent[]> {
+    return [...inMemoryStore];
+  }
+
+  /**
    * Rebuild aggregate state (ShipmentAggregate) by projecting its event stream
    */
   static async getShipmentProjection(aggregateId: string): Promise<ShipmentAggregate | null> {

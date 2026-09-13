@@ -5,6 +5,10 @@ import { shipmentApi } from '../api/shipments';
 interface ShipmentState {
   shipments: ShipmentAggregate[];
   selectedShipment: ShipmentAggregate | null;
+  liveShipment: ShipmentAggregate | null;
+  historicalState: ShipmentAggregate | null;
+  isHistoricalView: boolean;
+  selectedVersion: number | null;
   searchQuery: string;
   isLoading: boolean;
   error: string | null;
@@ -12,6 +16,8 @@ interface ShipmentState {
   // Actions
   fetchShipments: () => Promise<void>;
   fetchShipmentById: (id: string) => Promise<void>;
+  fetchShipmentStateAt: (id: string, version: number) => Promise<void>;
+  resetToLiveState: () => void;
   setSearchQuery: (query: string) => void;
   createShipment: (dto: CreateShipmentDto) => Promise<void>;
   moveShipment: (id: string, dto: MoveShipmentDto) => Promise<void>;
@@ -22,6 +28,10 @@ interface ShipmentState {
 export const useShipmentStore = create<ShipmentState>((set, get) => ({
   shipments: [],
   selectedShipment: null,
+  liveShipment: null,
+  historicalState: null,
+  isHistoricalView: false,
+  selectedVersion: null,
   searchQuery: '',
   isLoading: false,
   error: null,
@@ -43,12 +53,66 @@ export const useShipmentStore = create<ShipmentState>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const data = await shipmentApi.getShipmentById(id);
-      set({ selectedShipment: data, isLoading: false });
+      set({
+        selectedShipment: data,
+        liveShipment: data,
+        historicalState: null,
+        isHistoricalView: false,
+        selectedVersion: data?.latestVersion || 1,
+        isLoading: false,
+      });
     } catch (err: any) {
       set({
         error: err.response?.data?.error || `Shipment ${id} not found`,
         isLoading: false,
         selectedShipment: null,
+        liveShipment: null,
+        historicalState: null,
+        isHistoricalView: false,
+        selectedVersion: null,
+      });
+    }
+  },
+
+  fetchShipmentStateAt: async (id: string, version: number) => {
+    const { liveShipment } = get();
+
+    // If target version is equal to live latest version, restore live state
+    if (liveShipment && version >= liveShipment.latestVersion) {
+      set({
+        selectedShipment: liveShipment,
+        historicalState: null,
+        isHistoricalView: false,
+        selectedVersion: liveShipment.latestVersion,
+      });
+      return;
+    }
+
+    try {
+      const data = await shipmentApi.getShipmentStateAt(id, version);
+      set({
+        selectedShipment: {
+          ...data,
+          // Preserve full events list from live shipment so timeline displays all events
+          events: liveShipment?.events || data.events,
+        },
+        historicalState: data,
+        isHistoricalView: true,
+        selectedVersion: version,
+      });
+    } catch (err: any) {
+      console.error(`Failed to fetch state at version ${version} for shipment ${id}:`, err);
+    }
+  },
+
+  resetToLiveState: () => {
+    const { liveShipment } = get();
+    if (liveShipment) {
+      set({
+        selectedShipment: liveShipment,
+        historicalState: null,
+        isHistoricalView: false,
+        selectedVersion: liveShipment.latestVersion,
       });
     }
   },
@@ -103,6 +167,12 @@ export const useShipmentStore = create<ShipmentState>((set, get) => ({
   },
 
   clearSelectedShipment: () => {
-    set({ selectedShipment: null });
+    set({
+      selectedShipment: null,
+      liveShipment: null,
+      historicalState: null,
+      isHistoricalView: false,
+      selectedVersion: null,
+    });
   },
 }));

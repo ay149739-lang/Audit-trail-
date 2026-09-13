@@ -148,4 +148,38 @@ export class ShipmentController {
       next(error);
     }
   }
+
+  /**
+   * GET /api/shipments/:id/state-at
+   * Executes Historical State Scrubbing Query without altering live state
+   */
+  static async getShipmentStateAt(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const { version, timestamp } = req.query;
+
+      const parsedVersion = version ? parseInt(String(version), 10) : undefined;
+      const parsedTimestamp = timestamp ? String(timestamp) : undefined;
+
+      const historicalState = await ShipmentQueryHandler.handleGetShipmentStateAt(
+        id,
+        parsedVersion,
+        parsedTimestamp
+      );
+
+      if (!historicalState) {
+        return res.status(404).json({
+          success: false,
+          error: `No historical state found for shipment ${id} at specified point`,
+        });
+      }
+
+      res.status(200).json({
+        success: true,
+        data: historicalState,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }

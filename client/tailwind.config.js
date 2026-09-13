@@ -5,7 +5,7 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
-  theme: { 
+  theme: {
     extend: {
       colors: {
         industrial: {
@@ -22,6 +22,22 @@ export default {
           accentSecondary: '#D9A441',
           success: '#3F8F6B',
           warning: '#D9A441',
+          danger: '#C94A4A',
+        },
+        premiumDark: {
+          bg: '#141414',
+          card: '#1F1F1F',
+          panel: '#262626',
+          border: '#333333',
+          borderSubtle: '#2A2A2A',
+          gold: '#E5A93C',
+          goldHover: '#D49A2A',
+          teal: '#3A8B88',
+          textMain: '#F5F5F0',
+          textMuted: '#9E9E98',
+          textLight: '#70706A',
+          success: '#3F8F6B',
+          warning: '#E5A93C',
           danger: '#C94A4A',
         },
       },

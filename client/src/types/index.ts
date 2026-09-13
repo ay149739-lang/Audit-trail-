@@ -38,6 +38,9 @@ export interface ShipmentAggregate {
   latestVersion: number;
   updatedAt: string;
   events: IEvent[];
+  isHistorical?: boolean;
+  requestedVersion?: number;
+  requestedTimestamp?: string;
 }
 
 export interface CreateShipmentDto {

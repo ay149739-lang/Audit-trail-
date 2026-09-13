@@ -4,34 +4,33 @@
 
 @layer base {
   body {
-    @apply bg-[#F4F3EF] text-[#252525] font-sans antialiased min-h-screen selection:bg-[#E56B2F] selection:text-white;
+    @apply bg-[#F4F3EF] text-[#252525] font-sans antialiased min-h-screen selection:bg-[#E56B2F] selection:text-white dark:bg-[#141414] dark:text-[#F5F5F0] dark:selection:bg-[#E5A93C] dark:selection:text-[#141414];
   }
 }
 
-/* Warm Industrial Scrollbar */
+/* Warm Industrial & Premium Dark Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #F4F3EF;
+  @apply bg-[#F4F3EF] dark:bg-[#141414];
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #DDDCD6;
-  border-radius: 4px;
+  @apply bg-[#DDDCD6] dark:bg-[#333333] rounded-md;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #B8B7B0;
+  @apply bg-[#B8B7B0] dark:bg-[#444444];
 }
 
-/* Industrial Card & Panel Classes */
+/* Industrial Card & Panel Classes with Premium Dark Mode Support */
 .industrial-card {
-  @apply bg-white border border-[#DDDCD6] rounded-md transition-all shadow-sm;
+  @apply bg-white dark:bg-[#1F1F1F] border border-[#DDDCD6] dark:border-[#333333] rounded-md transition-all shadow-sm;
 }
 
 .industrial-card-hover {
-  @apply bg-white border border-[#DDDCD6] hover:border-[#B8B7B0] hover:bg-[#FAF9F5] rounded-md transition-all shadow-sm;
+  @apply bg-white dark:bg-[#1F1F1F] border border-[#DDDCD6] dark:border-[#333333] hover:border-[#B8B7B0] dark:hover:border-[#E5A93C]/40 hover:bg-[#FAF9F5] dark:hover:bg-[#262626] rounded-md transition-all shadow-sm;
 }

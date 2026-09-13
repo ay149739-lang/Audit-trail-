@@ -5,13 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-<<<<<<< HEAD
     "build": "vite build",
-    "preview": "vite preview" 
-=======
-    "build": "tsc && vite build",
     "preview": "vite preview"
->>>>>>> 3d9f726 (refactor: complete rewrite of client and server with TypeScript & Event Store)
   },
   "dependencies": {
     "axios": "^1.7.2",
