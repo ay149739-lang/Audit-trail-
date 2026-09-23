@@ -6,11 +6,11 @@ export class ShipmentQueryHandler {
   /**
    * Query: Get list of all projected shipment aggregates from the Read Model
    */
-  static async handleGetAllShipments(): Promise<ShipmentAggregate[]> {
+  static async  handleGetAllShipments(): Promise<ShipmentAggregate[]> {
     // Ensure recent events are projected into the Read Model
     await ProjectionService.runProjectionBatch();
 
-    const readModels = await ProjectionService.getReadModelShipments();
+    const readModels = await ProjectionService.getReadModelShipments(); 
 
     if (readModels.length === 0) {
       // Fallback if read models are empty
