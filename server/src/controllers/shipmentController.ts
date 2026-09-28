@@ -14,7 +14,7 @@ export class ShipmentController {
         carrier,
         vessel,
         operator,
-      });
+      });  
 
       res.status(201).json({
         success: true,
