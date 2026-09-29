@@ -2,15 +2,115 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ------------------------------------------------------------------ */
+/*  Keyframes owned by the `.stagger` primitive.                       */
+/*  Declared here rather than only in the Tailwind theme on purpose:    */
+/*  Tailwind emits a theme keyframe only when its matching `animate-*`  */
+/*  utility actually appears in the markup, so a keyframe that is only  */
+/*  referenced from hand-written CSS would never reach the bundle.      */
+/* ------------------------------------------------------------------ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Elevation tokens                                                   */
+/*  One ramp, two themes. Cards use shadow-elev-1, hovered/selected    */
+/*  surfaces use elev-2, modals and drawers use elev-3. The inset      */
+/*  top highlight is what makes a dark surface read as "raised"        */
+/*  instead of just "a slightly lighter rectangle".                    */
+/* ------------------------------------------------------------------ */
+:root {
+  --elev-1: inset 0 1px 0 0 rgb(255 255 255 / 0.6), 0 1px 2px 0 rgb(24 24 27 / 0.06);
+  --elev-2: inset 0 1px 0 0 rgb(255 255 255 / 0.7), 0 8px 20px -8px rgb(24 24 27 / 0.14);
+  --elev-3: inset 0 1px 0 0 rgb(255 255 255 / 0.8), 0 28px 56px -20px rgb(24 24 27 / 0.3);
+}
+
+:root.dark {
+  --elev-1: inset 0 1px 0 0 rgb(255 255 255 / 0.03), 0 1px 2px 0 rgb(0 0 0 / 0.4);
+  --elev-2: inset 0 1px 0 0 rgb(255 255 255 / 0.045), 0 10px 24px -10px rgb(0 0 0 / 0.65);
+  --elev-3: inset 0 1px 0 0 rgb(255 255 255 / 0.06), 0 32px 64px -24px rgb(0 0 0 / 0.85);
+}
+
 @layer base {
   body {
     @apply bg-[#F7F7F4] text-[#18181B] font-sans antialiased min-h-screen selection:bg-[#C2410C] selection:text-white dark:bg-[#141414] dark:text-[#F5F5F0] dark:selection:bg-[#E5A93C] dark:selection:text-[#141414];
+  }
+
+  /* Ledger data should never shift width as values change. */
+  .font-mono,
+  code,
+  kbd {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Respect the OS setting: motion is decoration, not information. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
   }
 }
 
 @layer utilities {
   .shadow-xs {
     box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  }
+
+  /* Staggered entrance. Put `stagger` on a grid/flex parent and the direct
+     children rise in sequence instead of all appearing at once.
+     `:where()` keeps specificity at zero and longhands are used on purpose, so
+     an element that already declares its own animation (animate-pulse
+     skeletons, the live spinner) keeps it instead of losing it to this rule. */
+  :where(.stagger) > * {
+    animation-name: fadeUp;
+    animation-duration: 480ms;
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+    animation-fill-mode: both;
+  }
+  :where(.stagger) > *:nth-child(1) { animation-delay: 0ms; }
+  :where(.stagger) > *:nth-child(2) { animation-delay: 45ms; }
+  :where(.stagger) > *:nth-child(3) { animation-delay: 90ms; }
+  :where(.stagger) > *:nth-child(4) { animation-delay: 135ms; }
+  :where(.stagger) > *:nth-child(5) { animation-delay: 180ms; }
+  :where(.stagger) > *:nth-child(6) { animation-delay: 225ms; }
+  :where(.stagger) > *:nth-child(7) { animation-delay: 270ms; }
+  :where(.stagger) > *:nth-child(8) { animation-delay: 315ms; }
+  :where(.stagger) > *:nth-child(9) { animation-delay: 360ms; }
+  :where(.stagger) > *:nth-child(10) { animation-delay: 405ms; }
+  :where(.stagger) > *:nth-child(11) { animation-delay: 450ms; }
+  :where(.stagger) > *:nth-child(12) { animation-delay: 495ms; }
+
+  /* Opt-out of decoration for a subtree when it carries state (e.g. row flashes). */
+  :where(.no-stagger) > * {
+    animation: none;
+    animation-delay: 0ms;
+  }
+
+  /* Quiet workspace canvas: one accent-tinted glow bleeding in from the top
+     edge over a barely-there dot grid. Gives the console a light source
+     instead of a single flat plane. Both layers stay under 6% opacity. */
+  .app-canvas {
+    background-color: #F4F3EF;
+    background-image:
+      radial-gradient(1100px 420px at 14% -10%, rgb(194 65 12 / 0.05), transparent 62%),
+      radial-gradient(circle at 1px 1px, rgb(24 24 27 / 0.05) 1px, transparent 0);
+    background-size: auto, 24px 24px;
+    background-attachment: fixed, fixed;
+  }
+
+  :root.dark .app-canvas {
+    background-color: #141414;
+    background-image:
+      radial-gradient(1100px 420px at 14% -10%, rgb(229 169 60 / 0.06), transparent 62%),
+      radial-gradient(circle at 1px 1px, rgb(255 255 255 / 0.035) 1px, transparent 0);
+    background-size: auto, 24px 24px;
+    background-attachment: fixed, fixed;
   }
 }
 
@@ -35,10 +135,10 @@
 /* Industrial Card & Panel Classes with Premium Dark Mode Support */
 @layer components {
   .industrial-card {
-    @apply bg-white dark:bg-[#1F1F1F] border border-[#E2E0D8] dark:border-[#333333] rounded-md transition-all shadow-sm;
+    @apply bg-white dark:bg-[#1F1F1F] border border-[#E2E0D8] dark:border-[#333333] rounded-lg transition-all duration-200 shadow-elev-1;
   }
 
   .industrial-card-hover {
-    @apply bg-white dark:bg-[#1F1F1F] border border-[#E2E0D8] dark:border-[#333333] hover:border-[#C8C5BB] dark:hover:border-[#E5A93C]/40 hover:bg-[#F0EFEA] dark:hover:bg-[#262626] rounded-md transition-all shadow-sm;
+    @apply bg-white dark:bg-[#1F1F1F] border border-[#E2E0D8] dark:border-[#333333] hover:border-[#C8C5BB] dark:hover:border-[#E5A93C]/40 hover:bg-[#F0EFEA] dark:hover:bg-[#262626] rounded-lg transition-all duration-200 shadow-elev-1 hover:shadow-elev-2;
   }
 }

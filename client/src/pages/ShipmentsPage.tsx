@@ -67,7 +67,7 @@ export const ShipmentsPage: React.FC<ShipmentsPageProps> = ({ onOpenNewShipmentM
   return (
     <div className="space-y-6 animate-fadeIn transition-colors font-sans">
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4 bg-white dark:bg-[#1F1F1F] p-5 rounded-md border border-[#DDDCD6] dark:border-[#333333] shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-4 bg-white dark:bg-[#1F1F1F] p-5 rounded-lg border border-[#DDDCD6] dark:border-[#333333] shadow-elev-1">
         <div>
           <h1 className="text-xl font-bold text-[#252525] dark:text-[#F5F5F0] tracking-tight font-sans">
             Shipments Aggregate Directory
@@ -101,7 +101,7 @@ export const ShipmentsPage: React.FC<ShipmentsPageProps> = ({ onOpenNewShipmentM
       )}
 
       {/* Unified Enterprise Filter & Search Toolbar (P1-1 Spacing: p-4) */}
-      <div className="bg-white dark:bg-[#1F1F1F] p-4 rounded-md border border-[#DDDCD6] dark:border-[#333333] shadow-sm flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+      <div className="bg-white dark:bg-[#1F1F1F] p-4 rounded-lg border border-[#DDDCD6] dark:border-[#333333] shadow-elev-1 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
         {/* Filter Segmented Control */}
         <div className="flex flex-wrap items-center gap-1 bg-[#FAF9F5] dark:bg-[#141414] p-1 rounded border border-[#DDDCD6] dark:border-[#333333] text-xs font-sans">
           {[
@@ -166,7 +166,7 @@ export const ShipmentsPage: React.FC<ShipmentsPageProps> = ({ onOpenNewShipmentM
       </div>
 
       {/* Shipments Grid / Table */}
-      <div className="bg-white dark:bg-[#1F1F1F] rounded-md border border-[#DDDCD6] dark:border-[#333333] shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-[#1F1F1F] rounded-lg border border-[#DDDCD6] dark:border-[#333333] shadow-elev-1 overflow-hidden">
         {isLoading && safeShipments.length === 0 ? (
           /* Zero-jump table skeleton loader matching exact column layout */
           <div className="overflow-x-auto">

@@ -343,7 +343,7 @@ export const ShipmentDetailPage: React.FC = () => {
       </div>
 
       {/* Historical State Scrubber Bar */}
-      <div className="bg-white dark:bg-[#1F1F1F] p-4 rounded-md border border-[#DDDCD6] dark:border-[#333333] shadow-sm space-y-3">
+      <div className="bg-white dark:bg-[#1F1F1F] p-4 rounded-lg border border-[#DDDCD6] dark:border-[#333333] shadow-elev-1 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <SlidersHorizontal className="w-4 h-4 text-[#E56B2F] dark:text-[#E5A93C]" />
@@ -420,7 +420,7 @@ export const ShipmentDetailPage: React.FC = () => {
       {/* MASTER-DETAIL SPLIT LAYOUT (~60% Event Ledger / ~40% Forensic Inspector) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* LEFT PANE (~60%): Chronological Continuous Event Rail */}
-        <div className="lg:col-span-7 bg-white dark:bg-[#1F1F1F] p-5 rounded-md border border-[#DDDCD6] dark:border-[#333333] shadow-sm space-y-4">
+        <div className="lg:col-span-7 bg-white dark:bg-[#1F1F1F] p-5 rounded-lg border border-[#DDDCD6] dark:border-[#333333] shadow-elev-1 space-y-4">
           <div className="flex items-center justify-between border-b border-[#DDDCD6]/60 dark:border-[#333333]/60 pb-3">
             <div>
               <div className="flex items-center gap-2">

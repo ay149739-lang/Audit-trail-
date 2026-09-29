@@ -178,11 +178,11 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenNewShipmentModal }) => {
           role="dialog"
           aria-modal="true"
           aria-label="Global shipment command search"
-          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-start justify-center pt-16 sm:pt-24 p-4 animate-fadeIn"
+          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-start justify-center pt-16 sm:pt-24 p-4 animate-fadeIn"
           onClick={() => setIsCommandModalOpen(false)}
         >
           <div
-            className="w-full max-w-xl bg-white dark:bg-[#1F1F1F] border border-[#DDDCD6] dark:border-[#333333] rounded-lg shadow-2xl overflow-hidden font-sans"
+            className="w-full max-w-xl bg-white dark:bg-[#1F1F1F] border border-[#DDDCD6] dark:border-[#333333] rounded-lg shadow-elev-3 overflow-hidden font-sans animate-scaleIn"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Search Input Bar */}

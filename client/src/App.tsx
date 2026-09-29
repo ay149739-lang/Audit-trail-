@@ -22,15 +22,15 @@ export const App: React.FC = () => {
   return (
     <ErrorBoundary>
       <Router>
-        <div className="flex flex-col min-h-screen bg-[#F4F3EF] dark:bg-[#141414] text-[#252525] dark:text-[#F5F5F0] font-sans transition-colors">
+        <div className="app-canvas flex flex-col min-h-screen text-[#252525] dark:text-[#F5F5F0] font-sans transition-colors">
           {/* Navbar Header */}
           <Navbar onOpenNewShipmentModal={() => setIsNewShipmentModalOpen(true)} />
 
           {/* Main Workspace with Sidebar */}
-          <div className="flex flex-1 overflow-hidden bg-[#F4F3EF] dark:bg-[#141414] transition-colors">
+          <div className="flex flex-1 overflow-hidden transition-colors">
             <Sidebar />
 
-            <main className="flex-1 overflow-y-auto p-4 lg:p-8 bg-[#F4F3EF] dark:bg-[#141414] transition-colors">
+            <main className="flex-1 overflow-y-auto p-4 lg:p-8 transition-colors">
               <Routes>
                 <Route
                   path="/"

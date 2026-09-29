@@ -144,8 +144,8 @@ export const RecordEventModal: React.FC<RecordEventModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-[#1F1F1F] border border-[#DDDCD6] dark:border-[#333333] rounded-md w-full max-w-lg overflow-hidden shadow-2xl animate-fadeIn font-sans">
+    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
+      <div className="bg-white dark:bg-[#1F1F1F] border border-[#DDDCD6] dark:border-[#333333] rounded-lg w-full max-w-lg overflow-hidden shadow-elev-3 animate-scaleIn font-sans">
         {/* Modal Header */}
         <div className="bg-[#FAF9F5] dark:bg-[#141414] px-6 py-4 border-b border-[#DDDCD6] dark:border-[#333333] flex items-center justify-between">
           <div>

@@ -15,7 +15,7 @@ export const SettingsPage: React.FC = () => {
   return (
     <div className="space-y-6 animate-fadeIn max-w-5xl font-sans transition-colors">
       {/* Header */}
-      <div className="bg-white dark:bg-[#1F1F1F] p-5 rounded-md border border-[#DDDCD6] dark:border-[#333333] shadow-sm flex flex-wrap items-center justify-between gap-4">
+      <div className="bg-white dark:bg-[#1F1F1F] p-5 rounded-lg border border-[#DDDCD6] dark:border-[#333333] shadow-elev-1 flex flex-wrap items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2.5">
             <h1 className="text-xl font-bold text-[#252525] dark:text-[#F5F5F0] tracking-tight font-sans">
@@ -34,7 +34,7 @@ export const SettingsPage: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* CQRS Command/Query Separation Spec */}
-        <div className="bg-white dark:bg-[#1F1F1F] p-5 rounded-md border border-[#DDDCD6] dark:border-[#333333] shadow-sm space-y-4">
+        <div className="bg-white dark:bg-[#1F1F1F] p-5 rounded-lg border border-[#DDDCD6] dark:border-[#333333] shadow-elev-1 space-y-4">
           <div className="flex items-center gap-3 border-b border-[#DDDCD6]/60 dark:border-[#333333]/60 pb-3">
             <div className="p-2 bg-[#E56B2F]/10 dark:bg-[#E5A93C]/10 rounded-md border border-[#E56B2F]/20 dark:border-[#E5A93C]/20 text-[#E56B2F] dark:text-[#E5A93C]">
               <Server className="w-4 h-4" />
@@ -77,7 +77,7 @@ export const SettingsPage: React.FC = () => {
         </div>
 
         {/* Projection Worker Configuration */}
-        <div className="bg-white dark:bg-[#1F1F1F] p-5 rounded-md border border-[#DDDCD6] dark:border-[#333333] shadow-sm space-y-4">
+        <div className="bg-white dark:bg-[#1F1F1F] p-5 rounded-lg border border-[#DDDCD6] dark:border-[#333333] shadow-elev-1 space-y-4">
           <div className="flex items-center gap-3 border-b border-[#DDDCD6]/60 dark:border-[#333333]/60 pb-3">
             <div className="p-2 bg-[#3A8B88]/10 rounded-md border border-[#3A8B88]/20 text-[#3A8B88]">
               <Cpu className="w-4 h-4" />
@@ -125,7 +125,7 @@ export const SettingsPage: React.FC = () => {
         </div>
 
         {/* Append-Only Immutability Guard */}
-        <div className="bg-white dark:bg-[#1F1F1F] p-5 rounded-md border border-[#DDDCD6] dark:border-[#333333] shadow-sm space-y-4">
+        <div className="bg-white dark:bg-[#1F1F1F] p-5 rounded-lg border border-[#DDDCD6] dark:border-[#333333] shadow-elev-1 space-y-4">
           <div className="flex items-center gap-3 border-b border-[#DDDCD6]/60 dark:border-[#333333]/60 pb-3">
             <div className="p-2 bg-[#3F8F6B]/10 rounded-md border border-[#3F8F6B]/20 text-[#3F8F6B]">
               <Lock className="w-4 h-4" />
@@ -154,7 +154,7 @@ export const SettingsPage: React.FC = () => {
         </div>
 
         {/* Client Diagnostics & Cache Controls */}
-        <div className="bg-white dark:bg-[#1F1F1F] p-5 rounded-md border border-[#DDDCD6] dark:border-[#333333] shadow-sm space-y-4">
+        <div className="bg-white dark:bg-[#1F1F1F] p-5 rounded-lg border border-[#DDDCD6] dark:border-[#333333] shadow-elev-1 space-y-4">
           <div className="flex items-center gap-3 border-b border-[#DDDCD6]/60 dark:border-[#333333]/60 pb-3">
             <div className="p-2 bg-[#D9A441]/10 rounded-md border border-[#D9A441]/20 text-[#D9A441]">
               <ShieldCheck className="w-4 h-4" />

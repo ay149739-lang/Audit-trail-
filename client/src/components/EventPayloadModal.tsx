@@ -19,8 +19,8 @@ export const EventPayloadModal: React.FC<EventPayloadModalProps> = ({ event, onC
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-[#1F1F1F] border border-[#DDDCD6] dark:border-[#333333] rounded-md w-full max-w-2xl overflow-hidden shadow-xl animate-fadeIn font-sans">
+    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
+      <div className="bg-white dark:bg-[#1F1F1F] border border-[#DDDCD6] dark:border-[#333333] rounded-lg w-full max-w-2xl overflow-hidden shadow-elev-3 animate-scaleIn font-sans">
         {/* Header */}
         <div className="bg-[#FAF9F5] dark:bg-[#141414] px-6 py-4 border-b border-[#DDDCD6] dark:border-[#333333] flex items-center justify-between">
           <div className="flex items-center gap-2">

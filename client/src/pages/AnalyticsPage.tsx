@@ -35,7 +35,7 @@ export const AnalyticsPage: React.FC = () => {
   if (isLoading && safeShipments.length === 0) {
     return (
       <div className="space-y-6 animate-fadeIn font-mono">
-        <div className="bg-white dark:bg-[#1F1F1F] p-5 rounded-md border border-[#DDDCD6] dark:border-[#333333] shadow-sm space-y-2">
+        <div className="bg-white dark:bg-[#1F1F1F] p-5 rounded-lg border border-[#DDDCD6] dark:border-[#333333] shadow-elev-1 space-y-2">
           <div className="h-6 w-56 bg-[#FAF9F5] dark:bg-[#262626] rounded animate-pulse"></div>
           <div className="h-4 w-80 bg-[#FAF9F5] dark:bg-[#262626] rounded animate-pulse"></div>
         </div>
@@ -51,8 +51,8 @@ export const AnalyticsPage: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white dark:bg-[#1F1F1F] p-6 rounded-md border border-[#DDDCD6] dark:border-[#333333] shadow-sm h-80 animate-pulse"></div>
-          <div className="bg-white dark:bg-[#1F1F1F] p-6 rounded-md border border-[#DDDCD6] dark:border-[#333333] shadow-sm h-80 animate-pulse"></div>
+          <div className="bg-white dark:bg-[#1F1F1F] p-6 rounded-lg border border-[#DDDCD6] dark:border-[#333333] shadow-elev-1 h-80 animate-pulse"></div>
+          <div className="bg-white dark:bg-[#1F1F1F] p-6 rounded-lg border border-[#DDDCD6] dark:border-[#333333] shadow-elev-1 h-80 animate-pulse"></div>
         </div>
       </div>
     );
@@ -90,7 +90,7 @@ export const AnalyticsPage: React.FC = () => {
   return (
     <div className="space-y-6 animate-fadeIn transition-colors font-sans">
       {/* Header */}
-      <div className="bg-white dark:bg-[#1F1F1F] p-5 rounded-md border border-[#DDDCD6] dark:border-[#333333] shadow-sm flex flex-wrap items-center justify-between gap-4">
+      <div className="bg-white dark:bg-[#1F1F1F] p-5 rounded-lg border border-[#DDDCD6] dark:border-[#333333] shadow-elev-1 flex flex-wrap items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2.5">
             <h1 className="text-xl font-bold text-[#252525] dark:text-[#F5F5F0] tracking-tight font-sans">
@@ -132,7 +132,7 @@ export const AnalyticsPage: React.FC = () => {
       {/* 3 High-Density KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 font-sans">
         {/* Total Appended Events */}
-        <div className="bg-white dark:bg-[#1F1F1F] p-4 rounded-md border border-[#DDDCD6] dark:border-[#333333] shadow-sm space-y-1">
+        <div className="bg-white dark:bg-[#1F1F1F] p-4 rounded-lg border border-[#DDDCD6] dark:border-[#333333] shadow-elev-1 space-y-1">
           <div className="flex items-center justify-between text-xs font-mono text-[#6B6B66] dark:text-[#9E9E98] uppercase tracking-wider">
             <span>Total Events Appended</span>
             <Activity className="w-4 h-4 text-[#E56B2F] dark:text-[#E5A93C]" />
@@ -146,7 +146,7 @@ export const AnalyticsPage: React.FC = () => {
         </div>
 
         {/* Aggregate Streams */}
-        <div className="bg-white dark:bg-[#1F1F1F] p-4 rounded-md border border-[#DDDCD6] dark:border-[#333333] shadow-sm space-y-1">
+        <div className="bg-white dark:bg-[#1F1F1F] p-4 rounded-lg border border-[#DDDCD6] dark:border-[#333333] shadow-elev-1 space-y-1">
           <div className="flex items-center justify-between text-xs font-mono text-[#6B6B66] dark:text-[#9E9E98] uppercase tracking-wider">
             <span>Active Streams</span>
             <BarChart3 className="w-4 h-4 text-[#3A8B88]" />
@@ -160,7 +160,7 @@ export const AnalyticsPage: React.FC = () => {
         </div>
 
         {/* Anomaly Frequency */}
-        <div className="bg-white dark:bg-[#1F1F1F] p-4 rounded-md border border-[#DDDCD6] dark:border-[#333333] shadow-sm space-y-1">
+        <div className="bg-white dark:bg-[#1F1F1F] p-4 rounded-lg border border-[#DDDCD6] dark:border-[#333333] shadow-elev-1 space-y-1">
           <div className="flex items-center justify-between text-xs font-mono text-[#6B6B66] dark:text-[#9E9E98] uppercase tracking-wider">
             <span>Telemetry Anomalies</span>
             <ShieldAlert className="w-4 h-4 text-[#C94A4A]" />
@@ -177,7 +177,7 @@ export const AnalyticsPage: React.FC = () => {
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Event Types Breakdown */}
-        <div className="bg-white dark:bg-[#1F1F1F] p-5 rounded-md border border-[#DDDCD6] dark:border-[#333333] shadow-sm space-y-4">
+        <div className="bg-white dark:bg-[#1F1F1F] p-5 rounded-lg border border-[#DDDCD6] dark:border-[#333333] shadow-elev-1 space-y-4">
           <div className="flex items-center justify-between border-b border-[#DDDCD6]/60 dark:border-[#333333]/60 pb-3">
             <div>
               <h3 className="font-bold text-[#252525] dark:text-[#F5F5F0] text-sm font-sans">Event Volume by Type</h3>
@@ -219,7 +219,7 @@ export const AnalyticsPage: React.FC = () => {
         </div>
 
         {/* Aggregate Stream Length */}
-        <div className="bg-white dark:bg-[#1F1F1F] p-5 rounded-md border border-[#DDDCD6] dark:border-[#333333] shadow-sm space-y-4">
+        <div className="bg-white dark:bg-[#1F1F1F] p-5 rounded-lg border border-[#DDDCD6] dark:border-[#333333] shadow-elev-1 space-y-4">
           <div className="flex items-center justify-between border-b border-[#DDDCD6]/60 dark:border-[#333333]/60 pb-3">
             <div>
               <h3 className="font-bold text-[#252525] dark:text-[#F5F5F0] text-sm font-sans">Stream Depth by Aggregate</h3>

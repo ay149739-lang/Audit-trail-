@@ -122,7 +122,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({ onOpenNewShipmentMod
   return (
     <div className="space-y-6 animate-fadeIn transition-colors font-sans">
       {/* Top Header & Search / Filter Controls */}
-      <div className="bg-white dark:bg-[#1F1F1F] p-5 rounded-md border border-[#DDDCD6] dark:border-[#333333] shadow-sm space-y-4">
+      <div className="bg-white dark:bg-[#1F1F1F] p-5 rounded-lg border border-[#DDDCD6] dark:border-[#333333] shadow-elev-1 space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-3">
@@ -203,13 +203,13 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({ onOpenNewShipmentMod
       )}
 
       {/* SUMMARY KPI CARDS (Real Application Data Only) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="stagger grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Card 1: Total Shipments */}
         <div
           onClick={() => navigate('/shipments')}
           role="button"
           tabIndex={0}
-          className="bg-white dark:bg-[#1F1F1F] p-5 rounded-md border border-[#DDDCD6] dark:border-[#333333] shadow-sm relative overflow-hidden cursor-pointer hover:border-[#B8B7B0] dark:hover:border-[#E5A93C]/40 hover:bg-[#FAF9F5]/70 dark:hover:bg-[#232323] transition-all group"
+          className="bg-white dark:bg-[#1F1F1F] p-5 rounded-lg border border-[#DDDCD6] dark:border-[#333333] shadow-elev-1 hover:shadow-elev-2 relative overflow-hidden cursor-pointer hover:border-[#B8B7B0] dark:hover:border-[#E5A93C]/40 hover:bg-[#FAF9F5]/70 dark:hover:bg-[#232323] transition-all duration-200 group"
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-mono text-[#6B6B66] dark:text-[#9E9E98] uppercase tracking-wider">
@@ -220,7 +220,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({ onOpenNewShipmentMod
             </div>
           </div>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-3xl font-bold text-[#252525] dark:text-[#F5F5F0] font-mono">{totalShipments}</span>
+            <span className="text-4xl font-bold tracking-tight text-[#252525] dark:text-[#F5F5F0] font-mono">{totalShipments}</span>
             <span className="text-xs text-[#6B6B66] dark:text-[#9E9E98] font-mono">Aggregates</span>
           </div>
           <div className="mt-2 text-xs text-[#6B6B66] dark:text-[#9E9E98] font-mono flex items-center gap-1 group-hover:text-[#E56B2F] dark:group-hover:text-[#E5A93C] transition-colors">
@@ -233,7 +233,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({ onOpenNewShipmentMod
           onClick={() => setStatusFilter('ACTIVE')}
           role="button"
           tabIndex={0}
-          className="bg-white dark:bg-[#1F1F1F] p-5 rounded-md border border-[#DDDCD6] dark:border-[#333333] shadow-sm relative overflow-hidden cursor-pointer hover:border-[#B8B7B0] dark:hover:border-[#E5A93C]/40 hover:bg-[#FAF9F5]/70 dark:hover:bg-[#232323] transition-all group"
+          className="bg-white dark:bg-[#1F1F1F] p-5 rounded-lg border border-[#DDDCD6] dark:border-[#333333] shadow-elev-1 hover:shadow-elev-2 relative overflow-hidden cursor-pointer hover:border-[#B8B7B0] dark:hover:border-[#E5A93C]/40 hover:bg-[#FAF9F5]/70 dark:hover:bg-[#232323] transition-all duration-200 group"
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-mono text-[#6B6B66] dark:text-[#9E9E98] uppercase tracking-wider">
@@ -244,7 +244,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({ onOpenNewShipmentMod
             </div>
           </div>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-3xl font-bold text-[#E56B2F] dark:text-[#E5A93C] font-mono">{activeShipmentsCount}</span>
+            <span className="text-4xl font-bold tracking-tight text-[#E56B2F] dark:text-[#E5A93C] font-mono">{activeShipmentsCount}</span>
             <span className="text-xs text-[#6B6B66] dark:text-[#9E9E98] font-mono">
               ({inTransitCount} transit, {atPortCount} port)
             </span>
@@ -260,7 +260,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({ onOpenNewShipmentMod
           onClick={() => setStatusFilter('DELIVERED')}
           role="button"
           tabIndex={0}
-          className="bg-white dark:bg-[#1F1F1F] p-5 rounded-md border border-[#DDDCD6] dark:border-[#333333] shadow-sm relative overflow-hidden cursor-pointer hover:border-[#B8B7B0] dark:hover:border-[#E5A93C]/40 hover:bg-[#FAF9F5]/70 dark:hover:bg-[#232323] transition-all group"
+          className="bg-white dark:bg-[#1F1F1F] p-5 rounded-lg border border-[#DDDCD6] dark:border-[#333333] shadow-elev-1 hover:shadow-elev-2 relative overflow-hidden cursor-pointer hover:border-[#B8B7B0] dark:hover:border-[#E5A93C]/40 hover:bg-[#FAF9F5]/70 dark:hover:bg-[#232323] transition-all duration-200 group"
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-mono text-[#6B6B66] dark:text-[#9E9E98] uppercase tracking-wider">
@@ -271,7 +271,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({ onOpenNewShipmentMod
             </div>
           </div>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-3xl font-bold text-[#3F8F6B] font-mono">{deliveredCount}</span>
+            <span className="text-4xl font-bold tracking-tight text-[#3F8F6B] font-mono">{deliveredCount}</span>
             <span className="text-xs text-[#3F8F6B] font-mono">Completed</span>
           </div>
           <div className="mt-2 text-xs text-[#6B6B66] dark:text-[#9E9E98] font-mono flex items-center gap-1">
@@ -284,7 +284,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({ onOpenNewShipmentMod
           onClick={() => navigate('/analytics')}
           role="button"
           tabIndex={0}
-          className="bg-white dark:bg-[#1F1F1F] p-5 rounded-md border border-[#DDDCD6] dark:border-[#333333] shadow-sm relative overflow-hidden cursor-pointer hover:border-[#B8B7B0] dark:hover:border-[#E5A93C]/40 hover:bg-[#FAF9F5]/70 dark:hover:bg-[#232323] transition-all group"
+          className="bg-white dark:bg-[#1F1F1F] p-5 rounded-lg border border-[#DDDCD6] dark:border-[#333333] shadow-elev-1 hover:shadow-elev-2 relative overflow-hidden cursor-pointer hover:border-[#B8B7B0] dark:hover:border-[#E5A93C]/40 hover:bg-[#FAF9F5]/70 dark:hover:bg-[#232323] transition-all duration-200 group"
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-mono text-[#6B6B66] dark:text-[#9E9E98] uppercase tracking-wider">
@@ -295,7 +295,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({ onOpenNewShipmentMod
             </div>
           </div>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-3xl font-bold text-[#252525] dark:text-[#F5F5F0] font-mono">{totalEvents}</span>
+            <span className="text-4xl font-bold tracking-tight text-[#252525] dark:text-[#F5F5F0] font-mono">{totalEvents}</span>
             <span className="text-xs text-[#6B6B66] dark:text-[#9E9E98] font-mono">Immutable</span>
           </div>
           <div className="mt-2 text-xs text-[#3F8F6B] font-mono flex items-center gap-1">
@@ -306,9 +306,9 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({ onOpenNewShipmentMod
       </div>
 
       {/* MAIN CONTENT: Shipment Overview Table + Right Detail Drawer */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div className="stagger grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* LEFT / CENTER: Shipment Fleet Overview (~65% or 8 cols) */}
-        <div className="lg:col-span-8 bg-white dark:bg-[#1F1F1F] rounded-md border border-[#DDDCD6] dark:border-[#333333] shadow-sm overflow-hidden space-y-0">
+        <div className="lg:col-span-8 bg-white dark:bg-[#1F1F1F] rounded-lg border border-[#DDDCD6] dark:border-[#333333] shadow-elev-1 overflow-hidden space-y-0">
           <div className="p-4 border-b border-[#DDDCD6] dark:border-[#333333] flex items-center justify-between">
             <div>
               <h3 className="font-bold text-[#252525] dark:text-[#F5F5F0] text-sm font-sans">
@@ -417,7 +417,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({ onOpenNewShipmentMod
         </div>
 
         {/* RIGHT / DETAIL: Selected Shipment Information Panel (~35% or 4 cols) */}
-        <div className="lg:col-span-4 bg-white dark:bg-[#1F1F1F] p-5 rounded-md border border-[#DDDCD6] dark:border-[#333333] shadow-sm space-y-4">
+        <div className="lg:col-span-4 bg-white dark:bg-[#1F1F1F] p-5 rounded-lg border border-[#DDDCD6] dark:border-[#333333] shadow-elev-1 space-y-4">
           <div className="flex items-center justify-between border-b border-[#DDDCD6]/60 dark:border-[#333333]/60 pb-3">
             <h3 className="font-bold text-[#252525] dark:text-[#F5F5F0] text-sm">
               Selected Shipment Detail

@@ -18,8 +18,8 @@ export const ConcurrencyConflictModal: React.FC<ConcurrencyConflictModalProps> =
   if (!conflict || !conflict.isConflict) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-[#1F1F1F] border border-[#DDDCD6] dark:border-[#333333] rounded-md w-full max-w-lg overflow-hidden shadow-2xl animate-fadeIn font-sans">
+    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
+      <div className="bg-white dark:bg-[#1F1F1F] border border-[#DDDCD6] dark:border-[#333333] rounded-lg w-full max-w-lg overflow-hidden shadow-elev-3 animate-scaleIn font-sans">
         {/* Conflict Header */}
         <div className="bg-[#C94A4A]/10 dark:bg-[#C94A4A]/15 px-6 py-4 border-b border-[#C94A4A]/25 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
