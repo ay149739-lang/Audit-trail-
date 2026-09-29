@@ -54,6 +54,7 @@ export interface CreateShipmentCommand {
   carrier: string;
   vessel?: string;
   operator?: string;
+  expectedVersion?: number;
 }
 
 export interface MoveShipmentCommand {
@@ -63,6 +64,7 @@ export interface MoveShipmentCommand {
   status?: string;
   operator?: string;
   notes?: string;
+  expectedVersion?: number;
 }
 
 export interface RecordEventCommand {
@@ -70,4 +72,6 @@ export interface RecordEventCommand {
   eventType: string;
   payload: EventPayload;
   operator?: string;
+  expectedVersion?: number;
 }
+

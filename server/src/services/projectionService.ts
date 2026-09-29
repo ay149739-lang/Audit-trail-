@@ -71,8 +71,9 @@ export class ProjectionService {
 
   /**
    * Project a single event onto the Read Model deterministically
+   * Returns true if the event was projected, false if skipped by idempotency guard
    */
-  static async projectEvent(event: IEvent): Promise<void> {
+  static async projectEvent(event: IEvent): Promise<boolean> {
     const isDbConnected = mongoose.connection.readyState === 1;
     const aggregateId = event.aggregateId.toUpperCase();
     const p = event.payload || {};
@@ -88,6 +89,11 @@ export class ProjectionService {
       readModel = inMemoryReadModelStore.get(aggregateId) || null;
     }
 
+    // Idempotency Guard: Skip if this event version was already applied to the read model
+    if (readModel && readModel.lastProcessedVersion !== undefined && event.version <= readModel.lastProcessedVersion) {
+      return false;
+    }
+
     if (!readModel) {
       readModel = {
         aggregateId,
@@ -99,8 +105,8 @@ export class ProjectionService {
         status: 'CREATED',
         lastTemperature: p.temperature !== undefined ? p.temperature : undefined,
         eventCount: 0,
-        latestVersion: event.version,
-        lastProcessedVersion: event.version,
+        latestVersion: 0,
+        lastProcessedVersion: 0,
         updatedAt: event.timestamp ? new Date(event.timestamp) : new Date(),
       };
     }
@@ -153,6 +159,8 @@ export class ProjectionService {
     } else {
       inMemoryReadModelStore.set(aggregateId, readModel);
     }
+
+    return true;
   }
 
   /**
@@ -163,18 +171,20 @@ export class ProjectionService {
     const checkpoint = await this.getCheckpoint();
 
     let allEvents: IEvent[] = [];
+    const lastCheckTime = checkpoint.lastProcessedTimestamp ? new Date(checkpoint.lastProcessedTimestamp).getTime() : 0;
 
     if (isDbConnected) {
-      const docs = await EventModel.find({}).sort({ timestamp: 1, version: 1 }).lean();
+      const query: any = {};
+      if (checkpoint.lastProcessedTimestamp && lastCheckTime > 0) {
+        query.timestamp = { $gte: new Date(checkpoint.lastProcessedTimestamp) };
+      }
+      const docs = await EventModel.find(query).sort({ timestamp: 1, version: 1 }).lean();
       allEvents = docs as unknown as IEvent[];
     } else {
       allEvents = await EventStoreService.getAllEventsInMemory();
     }
 
-    // Filter events after checkpoint timestamp / version
-    const lastCheckTime = checkpoint.lastProcessedTimestamp ? new Date(checkpoint.lastProcessedTimestamp).getTime() : 0;
-    
-    // Sort all events chronologically
+    // Sort events chronologically
     const sortedEvents = allEvents.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
 
     let processedCount = 0;
@@ -186,16 +196,20 @@ export class ProjectionService {
       const eventTime = new Date(event.timestamp).getTime();
       const eventId = (event as any)._id ? String((event as any)._id) : `${event.aggregateId}-${event.version}`;
 
-      // Skip already processed events
       if (eventTime < lastCheckTime) continue;
-      if (eventTime === lastCheckTime && eventId === checkpoint.lastProcessedEventId) continue;
 
-      await this.projectEvent(event);
-
-      processedCount++;
-      maxVersion = Math.max(maxVersion, event.version);
-      lastEventId = eventId;
-      lastTimestamp = new Date(event.timestamp);
+      try {
+        const wasProjected = await this.projectEvent(event);
+        if (wasProjected) {
+          processedCount++;
+          maxVersion = Math.max(maxVersion, event.version);
+          lastEventId = eventId;
+          lastTimestamp = new Date(event.timestamp);
+        }
+      } catch (err: any) {
+        console.error(`[ProjectionService] Error projecting event ${eventId} for aggregate ${event.aggregateId}:`, err);
+        break;
+      }
     }
 
     if (processedCount > 0) {

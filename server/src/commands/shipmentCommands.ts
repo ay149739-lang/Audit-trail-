@@ -28,11 +28,16 @@ export class ShipmentCommandHandler {
       status: 'CREATED',
     };
 
-    return await EventStoreService.appendEvent(cmd.aggregateId, EventType.CONTAINER_CREATED, payload);
+    return await EventStoreService.appendEvent(
+      cmd.aggregateId,
+      EventType.CONTAINER_CREATED,
+      payload,
+      cmd.expectedVersion
+    );
   }
 
   /**
-   * Command: Record location movement for a shipment
+   * Command: Record location movement for a shipment with OCC
    */
   static async handleMoveShipment(cmd: MoveShipmentCommand): Promise<IEvent> {
     if (!cmd.aggregateId) throw new Error('Shipment aggregateId is required');
@@ -51,11 +56,16 @@ export class ShipmentCommandHandler {
       notes: cmd.notes || `Shipment moved to ${cmd.location}`,
     };
 
-    return await EventStoreService.appendEvent(cmd.aggregateId, EventType.MOVED_LOCATION, payload);
+    return await EventStoreService.appendEvent(
+      cmd.aggregateId,
+      EventType.MOVED_LOCATION,
+      payload,
+      cmd.expectedVersion
+    );
   }
 
   /**
-   * Command: Record arbitrary domain event on shipment
+   * Command: Record arbitrary domain event on shipment with OCC
    */
   static async handleRecordEvent(cmd: RecordEventCommand): Promise<IEvent> {
     if (!cmd.aggregateId) throw new Error('Shipment aggregateId is required');
@@ -71,6 +81,12 @@ export class ShipmentCommandHandler {
       operator: cmd.operator || cmd.payload?.operator || 'Logistics Inspector',
     };
 
-    return await EventStoreService.appendEvent(cmd.aggregateId, cmd.eventType, payload);
+    return await EventStoreService.appendEvent(
+      cmd.aggregateId,
+      cmd.eventType,
+      payload,
+      cmd.expectedVersion
+    );
   }
 }
+

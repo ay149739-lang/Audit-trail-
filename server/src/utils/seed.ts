@@ -22,6 +22,8 @@ const seedData = [
           containerId: 'MSKU-8849201',
           cargoType: 'Pharmaceutical Refrigerated Goods',
           targetTemp: -18.0,
+          temperature: -18.2,
+          sensorId: 'IOT-SENS-77B',
         },
       },
       {
@@ -32,6 +34,8 @@ const seedData = [
           operator: 'Captain Aris Thorne',
           grossWeightKg: 24500,
           sealNumber: 'SEAL-SH-9921',
+          temperature: -17.8,
+          sensorId: 'IOT-SENS-77B',
         },
       },
       {
@@ -54,6 +58,8 @@ const seedData = [
           operator: 'Jan van der Meer (Harbor Master)',
           dockTime: '2026-08-28T14:30:00Z',
           customsStatus: 'PENDING_INSPECTION',
+          temperature: -17.5,
+          sensorId: 'IOT-SENS-77B',
         },
       },
       {
@@ -63,6 +69,8 @@ const seedData = [
           operator: 'Customs Officer H. Visser',
           clearanceCode: 'NL-CUST-2026-8812',
           inspectionResult: 'PASSED_WITH_REFRIGERATION_NOTE',
+          temperature: -18.0,
+          sensorId: 'IOT-SENS-77B',
         },
       },
     ],
@@ -81,6 +89,8 @@ const seedData = [
           containerId: 'HMMU-554109',
           cargoType: 'High-Precision Microconductors',
           targetTemp: 22.0,
+          temperature: 21.8,
+          sensorId: 'IOT-COND-104',
         },
       },
       {
@@ -91,6 +101,8 @@ const seedData = [
           operator: 'Chief Officer Min-jun',
           grossWeightKg: 18200,
           sealNumber: 'SEAL-BS-4410',
+          temperature: 22.1,
+          sensorId: 'IOT-COND-104',
         },
       },
       {
@@ -102,6 +114,8 @@ const seedData = [
           status: 'IN_TRANSIT',
           speedKnots: 21.5,
           weatherCondition: 'Clear Seas',
+          temperature: 22.4,
+          sensorId: 'IOT-COND-104',
         },
       },
       {
@@ -111,6 +125,8 @@ const seedData = [
           operator: 'Steve Miller (Long Beach Dispatch)',
           dockTime: '2026-09-01T08:15:00Z',
           status: 'AT_PORT',
+          temperature: 21.9,
+          sensorId: 'IOT-COND-104',
         },
       },
     ],
@@ -129,6 +145,8 @@ const seedData = [
           containerId: 'HLXU-109284',
           cargoType: 'Automotive Precision Engine Blocks',
           targetTemp: 20.0,
+          temperature: 20.2,
+          sensorId: 'IOT-TEMP-991',
         },
       },
       {
@@ -139,6 +157,8 @@ const seedData = [
           operator: 'Captain Meyer',
           grossWeightKg: 31000,
           sealNumber: 'SEAL-HAM-1092',
+          temperature: 20.9,
+          sensorId: 'IOT-TEMP-991',
         },
       },
       {
@@ -170,6 +190,8 @@ const seedData = [
           containerId: 'ONEU-990123',
           cargoType: 'Robotic Assembly Components',
           targetTemp: 18.0,
+          temperature: 18.0,
+          sensorId: 'IOT-ROB-441',
         },
       },
       {
@@ -180,6 +202,8 @@ const seedData = [
           operator: 'Captain Takahashi',
           grossWeightKg: 19800,
           sealNumber: 'SEAL-YOK-7711',
+          temperature: 18.3,
+          sensorId: 'IOT-ROB-441',
         },
       },
       {
@@ -189,6 +213,8 @@ const seedData = [
           operator: 'Liam O\'Connor',
           dockTime: '2026-08-30T10:00:00Z',
           customsStatus: 'CLEARED',
+          temperature: 17.9,
+          sensorId: 'IOT-ROB-441',
         },
       },
       {
@@ -197,6 +223,8 @@ const seedData = [
           location: 'Sydney Logistics Hub 3',
           operator: 'Australian Border Force Officer',
           clearanceCode: 'AU-ABF-2026-9081',
+          temperature: 18.1,
+          sensorId: 'IOT-ROB-441',
         },
       },
       {
@@ -206,6 +234,8 @@ const seedData = [
           operator: 'Warehouse Supervisor Dave',
           deliveryTimestamp: '2026-09-02T16:00:00Z',
           recipientSignature: 'D. M. Campbell',
+          temperature: 18.0,
+          sensorId: 'IOT-ROB-441',
         },
       },
     ],
@@ -224,6 +254,8 @@ const seedData = [
           containerId: 'CMAU-332901',
           cargoType: 'Organic Arabica Coffee Beans',
           targetTemp: 18.0,
+          temperature: 18.1,
+          sensorId: 'IOT-COFF-09',
         },
       },
       {
@@ -234,6 +266,8 @@ const seedData = [
           operator: 'First Mate Jean-Luc',
           grossWeightKg: 28000,
           sealNumber: 'SEAL-SAN-3301',
+          temperature: 18.4,
+          sensorId: 'IOT-COFF-09',
         },
       },
     ],
@@ -252,19 +286,28 @@ const seedData = [
           containerId: 'MSCU-771829',
           cargoType: 'Specialty Solar Inverter Systems',
           targetTemp: 25.0,
+          temperature: 24.9,
+          sensorId: 'IOT-SOL-88',
         },
       },
     ],
   },
 ];
 
+
+import { ShipmentReadModel } from '../models/ShipmentReadModel';
+import { ProjectionCheckpoint } from '../models/ProjectionCheckpoint';
+import { ProjectionService } from '../services/projectionService';
+
 export async function runSeed() {
   console.log('[Seed] Connecting to MongoDB...');
   const connected = await connectDB();
 
   if (connected) {
-    console.log('[Seed] Purging existing event store data...');
+    console.log('[Seed] Purging existing event store and projection read model data...');
     await EventModel.deleteMany({});
+    await ShipmentReadModel.deleteMany({});
+    await ProjectionCheckpoint.deleteMany({});
   }
 
   console.log('[Seed] Inserting seed events for aggregates...');
@@ -274,7 +317,12 @@ export async function runSeed() {
     }
   }
 
-  console.log(`[Seed] Successfully seeded ${seedData.length} shipment aggregates with historical immutable events.`);
+  console.log('[Seed] Running projection batch to materialize Read Models...');
+  const projectedCount = await ProjectionService.runProjectionBatch();
+
+  console.log(
+    `[Seed] Successfully seeded ${seedData.length} shipment aggregates (${projectedCount} events projected into Read Model).`
+  );
 
   if (connected) {
     process.exit(0);

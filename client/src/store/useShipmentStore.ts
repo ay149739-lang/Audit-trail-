@@ -1,5 +1,12 @@
 import { create } from 'zustand';
-import { ShipmentAggregate, IEvent, CreateShipmentDto, MoveShipmentDto, RecordEventDto } from '../types';
+import {
+  ShipmentAggregate,
+  IEvent,
+  CreateShipmentDto,
+  MoveShipmentDto,
+  RecordEventDto,
+  ConcurrencyConflictInfo,
+} from '../types';
 import { shipmentApi } from '../api/shipments';
 
 interface ShipmentState {
@@ -12,8 +19,8 @@ interface ShipmentState {
   searchQuery: string;
   isLoading: boolean;
   error: string | null;
+  concurrencyConflict: ConcurrencyConflictInfo | null;
 
-  
   fetchShipments: () => Promise<void>;
   fetchShipmentById: (id: string) => Promise<void>;
   fetchShipmentStateAt: (id: string, version: number) => Promise<void>;
@@ -23,7 +30,11 @@ interface ShipmentState {
   moveShipment: (id: string, dto: MoveShipmentDto) => Promise<void>;
   recordEvent: (id: string, dto: RecordEventDto) => Promise<void>;
   clearSelectedShipment: () => void;
+  clearConcurrencyConflict: () => void;
+  refreshShipment: (id: string) => Promise<void>;
 }
+
+let activeStateRequestId = 0;
 
 export const useShipmentStore = create<ShipmentState>((set, get) => ({
   shipments: [],
@@ -35,6 +46,8 @@ export const useShipmentStore = create<ShipmentState>((set, get) => ({
   searchQuery: '',
   isLoading: false,
   error: null,
+  concurrencyConflict: null,
+
 
   fetchShipments: async () => {
     set({ isLoading: true, error: null });
@@ -76,6 +89,7 @@ export const useShipmentStore = create<ShipmentState>((set, get) => ({
 
   fetchShipmentStateAt: async (id: string, version: number) => {
     const { liveShipment } = get();
+    const currentRequestId = ++activeStateRequestId;
 
     // If target version is equal to live latest version, restore live state
     if (liveShipment && version >= liveShipment.latestVersion) {
@@ -90,6 +104,10 @@ export const useShipmentStore = create<ShipmentState>((set, get) => ({
 
     try {
       const data = await shipmentApi.getShipmentStateAt(id, version);
+      if (currentRequestId !== activeStateRequestId) {
+        // Discard stale response
+        return;
+      }
       set({
         selectedShipment: {
           ...data,
@@ -101,6 +119,7 @@ export const useShipmentStore = create<ShipmentState>((set, get) => ({
         selectedVersion: version,
       });
     } catch (err: any) {
+      if (currentRequestId !== activeStateRequestId) return;
       console.error(`Failed to fetch state at version ${version} for shipment ${id}:`, err);
     }
   },
@@ -138,32 +157,86 @@ export const useShipmentStore = create<ShipmentState>((set, get) => ({
 
   moveShipment: async (id: string, dto: MoveShipmentDto) => {
     set({ isLoading: true, error: null });
+    const { liveShipment, selectedShipment } = get();
+    const currentVersion = liveShipment?.latestVersion || selectedShipment?.latestVersion || 1;
+    const expectedVersion = dto.expectedVersion !== undefined ? dto.expectedVersion : currentVersion;
+
     try {
-      await shipmentApi.moveShipment(id, dto);
+      await shipmentApi.moveShipment(id, { ...dto, expectedVersion });
+      set({ concurrencyConflict: null });
       await get().fetchShipments();
       await get().fetchShipmentById(id);
     } catch (err: any) {
-      set({
-        error: err.response?.data?.error || `Failed to move shipment ${id}`,
-        isLoading: false,
-      });
+      if (err.response?.status === 409 || err.response?.data?.code === 'CONCURRENCY_CONFLICT') {
+        const conflictData: ConcurrencyConflictInfo = {
+          isConflict: true,
+          message:
+            err.response?.data?.error ||
+            'Shipment has been modified by another operation. Refresh the shipment and try again.',
+          expectedVersion: err.response?.data?.expectedVersion ?? expectedVersion,
+          currentVersion: err.response?.data?.currentVersion ?? (currentVersion + 1),
+          aggregateId: id,
+        };
+        set({
+          concurrencyConflict: conflictData,
+          isLoading: false,
+          error: conflictData.message,
+        });
+      } else {
+        set({
+          error: err.response?.data?.error || `Failed to move shipment ${id}`,
+          isLoading: false,
+        });
+      }
       throw err;
     }
   },
 
   recordEvent: async (id: string, dto: RecordEventDto) => {
     set({ isLoading: true, error: null });
+    const { liveShipment, selectedShipment } = get();
+    const currentVersion = liveShipment?.latestVersion || selectedShipment?.latestVersion || 1;
+    const expectedVersion = dto.expectedVersion !== undefined ? dto.expectedVersion : currentVersion;
+
     try {
-      await shipmentApi.recordEvent(id, dto);
+      await shipmentApi.recordEvent(id, { ...dto, expectedVersion });
+      set({ concurrencyConflict: null });
       await get().fetchShipments();
       await get().fetchShipmentById(id);
     } catch (err: any) {
-      set({
-        error: err.response?.data?.error || `Failed to record event for ${id}`,
-        isLoading: false,
-      });
+      if (err.response?.status === 409 || err.response?.data?.code === 'CONCURRENCY_CONFLICT') {
+        const conflictData: ConcurrencyConflictInfo = {
+          isConflict: true,
+          message:
+            err.response?.data?.error ||
+            'Shipment has been modified by another operation. Refresh the shipment and try again.',
+          expectedVersion: err.response?.data?.expectedVersion ?? expectedVersion,
+          currentVersion: err.response?.data?.currentVersion ?? (currentVersion + 1),
+          aggregateId: id,
+        };
+        set({
+          concurrencyConflict: conflictData,
+          isLoading: false,
+          error: conflictData.message,
+        });
+      } else {
+        set({
+          error: err.response?.data?.error || `Failed to record event for ${id}`,
+          isLoading: false,
+        });
+      }
       throw err;
     }
+  },
+
+  clearConcurrencyConflict: () => {
+    set({ concurrencyConflict: null });
+  },
+
+  refreshShipment: async (id: string) => {
+    set({ concurrencyConflict: null, isLoading: true });
+    await get().fetchShipmentById(id);
+    await get().fetchShipments();
   },
 
   clearSelectedShipment: () => {
@@ -173,6 +246,8 @@ export const useShipmentStore = create<ShipmentState>((set, get) => ({
       historicalState: null,
       isHistoricalView: false,
       selectedVersion: null,
+      concurrencyConflict: null,
     });
   },
 }));
+

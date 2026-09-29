@@ -3,10 +3,10 @@ import { ShipmentCommandHandler } from '../commands/shipmentCommands';
 import { ShipmentQueryHandler } from '../queries/shipmentQueries';
 
 export class ShipmentController {
-  
+
   static async createShipment(req: Request, res: Response, next: NextFunction) {
     try {
-      const { aggregateId, origin, destination, carrier, vessel, operator } = req.body;
+      const { aggregateId, origin, destination, carrier, vessel, operator, expectedVersion } = req.body;
       const event = await ShipmentCommandHandler.handleCreateShipment({
         aggregateId,
         origin,
@@ -14,7 +14,8 @@ export class ShipmentController {
         carrier,
         vessel,
         operator,
-      });  
+        expectedVersion: expectedVersion !== undefined ? Number(expectedVersion) : undefined,
+      });
 
       res.status(201).json({
         success: true,
@@ -28,12 +29,12 @@ export class ShipmentController {
 
   /**
    * POST /api/shipments/:id/move
-   * Dispatches MoveShipmentCommand
+   * Dispatches MoveShipmentCommand with OCC validation
    */
   static async moveShipment(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
-      const { location, vessel, status, operator, notes } = req.body;
+      const { location, vessel, status, operator, notes, expectedVersion } = req.body;
 
       const event = await ShipmentCommandHandler.handleMoveShipment({
         aggregateId: id,
@@ -42,6 +43,7 @@ export class ShipmentController {
         status,
         operator,
         notes,
+        expectedVersion: expectedVersion !== undefined ? Number(expectedVersion) : undefined,
       });
 
       res.status(200).json({
@@ -56,18 +58,19 @@ export class ShipmentController {
 
   /**
    * POST /api/shipments/:id/events
-   * Dispatches RecordEventCommand (Generic Append Event)
+   * Dispatches RecordEventCommand (Generic Append Event with OCC)
    */
   static async recordEvent(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
-      const { eventType, payload, operator } = req.body;
+      const { eventType, payload, operator, expectedVersion } = req.body;
 
       const event = await ShipmentCommandHandler.handleRecordEvent({
         aggregateId: id,
         eventType,
         payload,
         operator,
+        expectedVersion: expectedVersion !== undefined ? Number(expectedVersion) : undefined,
       });
 
       res.status(201).json({
@@ -79,6 +82,7 @@ export class ShipmentController {
       next(error);
     }
   }
+
 
   // --- QUERY CONTROLLERS ---
 

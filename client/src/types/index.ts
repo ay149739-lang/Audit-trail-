@@ -43,6 +43,14 @@ export interface ShipmentAggregate {
   requestedTimestamp?: string;
 }
 
+export interface ConcurrencyConflictInfo {
+  isConflict: boolean;
+  message?: string;
+  expectedVersion?: number;
+  currentVersion?: number;
+  aggregateId?: string;
+}
+
 export interface CreateShipmentDto {
   aggregateId: string;
   origin: string;
@@ -50,6 +58,7 @@ export interface CreateShipmentDto {
   carrier: string;
   vessel?: string;
   operator?: string;
+  expectedVersion?: number;
 }
 
 export interface MoveShipmentDto {
@@ -58,10 +67,13 @@ export interface MoveShipmentDto {
   status?: string;
   operator?: string;
   notes?: string;
+  expectedVersion?: number;
 }
 
 export interface RecordEventDto {
   eventType: string;
   payload: EventPayload;
   operator?: string;
+  expectedVersion?: number;
 }
+

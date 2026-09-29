@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { X, PackagePlus, AlertTriangle, ArrowRight, ShieldAlert } from 'lucide-react';
+import { X, PackagePlus, AlertTriangle, ArrowRight } from 'lucide-react';
 import { useShipmentStore } from '../store/useShipmentStore';
 import { useNavigate } from 'react-router-dom';
+import { PrimaryButton } from './PrimaryButton';
+import { SecondaryButton } from './SecondaryButton';
 
 interface NewShipmentModalProps {
   isOpen: boolean;
@@ -121,39 +123,32 @@ export const NewShipmentModal: React.FC<NewShipmentModalProps> = ({
                 <span className="text-[#252525] dark:text-[#F5F5F0]">{carrier} • {vessel}</span>
               </div>
               <div className="flex items-center justify-between text-[11px]">
-                <span className="text-[#6B6B66] dark:text-[#9E9E98]">Event Appended:</span>
+                <span className="text-[#6B6B66] dark:text-[#9E9E98]">Initial Event:</span>
                 <span className="text-[#3F8F6B] dark:text-[#3A8B88] font-bold">CONTAINER_CREATED (v1)</span>
               </div>
             </div>
 
-            <div className="text-[#6B6B66] dark:text-[#9E9E98] text-xs leading-relaxed font-mono">
-              Dispatch new container? This will create a new immutable event stream in the append-only ledger.
+            <div className="space-y-1">
+              <p className="text-sm font-bold text-[#252525] dark:text-[#F5F5F0] font-sans">
+                Dispatch new container?
+              </p>
+              <p className="text-xs text-[#6B6B66] dark:text-[#9E9E98] font-mono leading-relaxed">
+                This will create a new immutable event stream in the append-only ledger.
+              </p>
             </div>
 
             {/* Actions */}
             <div className="pt-3 flex items-center justify-end gap-2 border-t border-[#DDDCD6] dark:border-[#333333]">
-              <button
-                type="button"
-                onClick={() => setIsConfirming(false)}
-                className="px-3.5 py-2 rounded-md text-xs font-bold text-[#6B6B66] dark:text-[#9E9E98] hover:bg-[#FAF9F5] dark:hover:bg-[#262626] font-mono transition-colors"
-              >
-                Back / Edit
-              </button>
-              <button
-                type="button"
+              <SecondaryButton onClick={() => setIsConfirming(false)}>
+                Cancel
+              </SecondaryButton>
+              <PrimaryButton
+                icon={PackagePlus}
                 onClick={handleConfirmedDispatch}
                 disabled={isLoading}
-                className="bg-[#E56B2F] hover:bg-[#D45A1E] dark:bg-[#E5A93C] dark:hover:bg-[#D49A2A] text-white dark:text-[#141414] px-3.5 py-2 rounded-md text-xs font-bold transition-all shadow-sm font-mono inline-flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-[#E56B2F] dark:focus-visible:ring-[#E5A93C] focus:outline-none"
               >
-                {isLoading ? (
-                  <span>Appending Event...</span>
-                ) : (
-                  <>
-                    <PackagePlus className="w-3.5 h-3.5" />
-                    <span>Dispatch Container</span>
-                  </>
-                )}
-              </button>
+                {isLoading ? 'Dispatching Container...' : 'Dispatch Container'}
+              </PrimaryButton>
             </div>
           </div>
         ) : (
@@ -234,20 +229,16 @@ export const NewShipmentModal: React.FC<NewShipmentModalProps> = ({
 
             {/* Actions */}
             <div className="pt-3 flex items-center justify-end gap-2 border-t border-[#DDDCD6] dark:border-[#333333]">
-              <button
-                type="button"
-                onClick={handleClose}
-                className="px-3.5 py-2 rounded-md text-xs font-bold text-[#6B6B66] dark:text-[#9E9E98] hover:bg-[#FAF9F5] dark:hover:bg-[#262626] font-mono transition-colors"
-              >
+              <SecondaryButton onClick={handleClose}>
                 Cancel
-              </button>
-              <button
+              </SecondaryButton>
+              <PrimaryButton
                 type="submit"
-                className="bg-[#E56B2F] hover:bg-[#D45A1E] dark:bg-[#E5A93C] dark:hover:bg-[#D49A2A] text-white dark:text-[#141414] px-3.5 py-2 rounded-md text-xs font-bold transition-all shadow-sm font-mono inline-flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-[#E56B2F] dark:focus-visible:ring-[#E5A93C] focus:outline-none"
+                icon={ArrowRight}
+                iconPosition="right"
               >
-                <span>Continue to Confirmation</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
+                Continue to Confirmation
+              </PrimaryButton>
             </div>
           </form>
         )}

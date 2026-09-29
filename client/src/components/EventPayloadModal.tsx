@@ -29,7 +29,8 @@ export const EventPayloadModal: React.FC<EventPayloadModalProps> = ({ event, onC
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded text-[#6B6B66] dark:text-[#9E9E98] hover:text-[#252525] dark:hover:text-[#F5F5F0] hover:bg-[#DDDCD6]/40 dark:hover:bg-[#333333]/40 transition-colors"
+            aria-label="Close inspector"
+            className="p-1 rounded text-[#6B6B66] dark:text-[#9E9E98] hover:text-[#252525] dark:hover:text-[#F5F5F0] hover:bg-[#DDDCD6]/40 dark:hover:bg-[#333333]/40 transition-colors focus-visible:ring-2 focus-visible:ring-[#E56B2F] dark:focus-visible:ring-[#E5A93C] focus:outline-none"
           >
             <X className="w-5 h-5" />
           </button>
@@ -98,7 +99,7 @@ export const EventPayloadModal: React.FC<EventPayloadModalProps> = ({ event, onC
           </div>
           <button
             onClick={onClose}
-            className="bg-[#252525] hover:bg-[#333333] dark:bg-[#E5A93C] dark:hover:bg-[#D49A2A] text-white dark:text-[#141414] px-4 py-1.5 rounded-md text-xs font-bold transition-colors font-sans"
+            className="bg-[#252525] hover:bg-[#333333] dark:bg-[#E5A93C] dark:hover:bg-[#D49A2A] text-white dark:text-[#141414] px-4 py-1.5 rounded-md text-xs font-bold transition-colors font-sans focus-visible:ring-2 focus-visible:ring-[#E56B2F] dark:focus-visible:ring-[#E5A93C] focus:outline-none active:scale-[0.98]"
           >
             Close Inspector
           </button>

@@ -8,9 +8,11 @@
     "worker": "tsx watch src/workers/projectionWorker.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "seed": "tsx src/utils/seed.ts"
-  }, 
-  
+    "seed": "tsx src/utils/seed.ts",
+    "test:week3": "tsx src/tests/week3.test.ts",
+    "test:week4": "tsx src/tests/week4.test.ts",
+    "test": "tsx src/tests/week3.test.ts && tsx src/tests/week4.test.ts"
+  },
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",

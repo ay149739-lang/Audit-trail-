@@ -5,33 +5,61 @@ import { IEvent, EventType, ShipmentAggregate, EventPayload } from '../types';
 // In-memory store fallback when DB is disconnected
 const inMemoryStore: IEvent[] = [];
 
+export class ConcurrencyError extends Error {
+  public statusCode: number = 409;
+  public aggregateId: string;
+  public expectedVersion: number;
+  public currentVersion: number;
+
+  constructor(aggregateId: string, expectedVersion: number, currentVersion: number) {
+    super('Shipment has been modified by another operation. Refresh the shipment and try again.');
+    this.name = 'ConcurrencyError';
+    this.aggregateId = aggregateId;
+    this.expectedVersion = expectedVersion;
+    this.currentVersion = currentVersion;
+    Object.setPrototypeOf(this, ConcurrencyError.prototype);
+  }
+}
+
 export class EventStoreService {
   /**
    * Append a new event to the aggregate stream.
    * Auto-increments event version and enforces append-only rule.
+   * Enforces Optimistic Concurrency Control (OCC) when expectedVersion is provided.
    */
   static async appendEvent(
     aggregateId: string,
     eventType: string | EventType,
-    payload: EventPayload
+    payload: EventPayload,
+    expectedVersion?: number
   ): Promise<IEvent> {
+    const normalizedId = aggregateId.toUpperCase();
     const isDbConnected = mongoose.connection.readyState === 1;
 
-    let nextVersion = 1;
+    let currentVersion = 0;
     if (isDbConnected) {
-      const lastEvent = await EventModel.findOne({ aggregateId }).sort({ version: -1 });
+      const lastEvent = await EventModel.findOne({ aggregateId: normalizedId }).sort({ version: -1 });
       if (lastEvent) {
-        nextVersion = lastEvent.version + 1;
+        currentVersion = lastEvent.version;
       }
     } else {
-      const aggregateEvents = inMemoryStore.filter((e) => e.aggregateId === aggregateId);
+      const aggregateEvents = inMemoryStore.filter((e) => e.aggregateId === normalizedId);
       if (aggregateEvents.length > 0) {
-        nextVersion = Math.max(...aggregateEvents.map((e) => e.version)) + 1;
+        currentVersion = Math.max(...aggregateEvents.map((e) => e.version));
       }
     }
 
+    // Optimistic Concurrency Control (OCC) Validation
+    if (expectedVersion !== undefined && expectedVersion !== null) {
+      if (expectedVersion !== currentVersion) {
+        throw new ConcurrencyError(normalizedId, expectedVersion, currentVersion);
+      }
+    }
+
+    const nextVersion = currentVersion + 1;
+
     const eventData: IEvent = {
-      aggregateId: aggregateId.toUpperCase(),
+      aggregateId: normalizedId,
       eventType,
       payload,
       timestamp: new Date(),
@@ -39,14 +67,31 @@ export class EventStoreService {
     };
 
     if (isDbConnected) {
-      const doc = new EventModel(eventData);
-      await doc.save();
-      return doc.toObject() as unknown as IEvent;
+      try {
+        const doc = new EventModel(eventData);
+        await doc.save();
+        return doc.toObject() as unknown as IEvent;
+      } catch (err: any) {
+        // Handle race conditions where another writer committed at the same version
+        if (err.code === 11000) {
+          const freshEvent = await EventModel.findOne({ aggregateId: normalizedId }).sort({ version: -1 });
+          const freshVersion = freshEvent ? freshEvent.version : nextVersion;
+          throw new ConcurrencyError(normalizedId, expectedVersion ?? currentVersion, freshVersion);
+        }
+        throw err;
+      }
     } else {
+      // In-memory race condition protection
+      if (inMemoryStore.some((e) => e.aggregateId === normalizedId && e.version === nextVersion)) {
+        const freshEvents = inMemoryStore.filter((e) => e.aggregateId === normalizedId);
+        const freshVersion = Math.max(...freshEvents.map((e) => e.version));
+        throw new ConcurrencyError(normalizedId, expectedVersion ?? currentVersion, freshVersion);
+      }
       inMemoryStore.push(eventData);
       return eventData;
     }
   }
+
 
   /**
    * Retrieve full chronological event stream for a single aggregateId

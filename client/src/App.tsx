@@ -16,7 +16,7 @@ export const App: React.FC = () => {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const handleDispatchSuccess = (aggregateId: string) => {
-    setToastMessage(`Container ${aggregateId} dispatched successfully via immutable event stream.`);
+    setToastMessage(`Container ${aggregateId} dispatched successfully.`);
   };
 
   return (

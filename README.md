@@ -1,237 +1,194 @@
 # 📦 Audit Trail — Event-Sourced Logistics Ledger (MERN Stack)
 
-A high-performance supply-chain audit dashboard demonstrating **Event Sourcing** and **Command Query Responsibility Segregation (CQRS)** instead of traditional CRUD state mutation.
+A production-grade supply-chain audit console demonstrating **Event Sourcing**, **CQRS (Command Query Responsibility Segregation)**, **Read Model Projections**, an asynchronous **Background Node.js Projection Worker**, and deterministic **Historical State Scrubbing**.
 
 ---
 
-## 💡 Concept & Architecture
+## 💡 Concept & Week 3 Architecture
 
-In traditional CRUD applications, shipment status is stored as a mutable record (e.g. `status = "IN_TRANSIT"`). Overwriting records loses historical provenance, timeline context, and forensic verifiability.
+In traditional CRUD applications, shipment status is stored as a mutable record (e.g. `status = "IN_TRANSIT"`). Overwriting records loses historical provenance, timeline context, and forensic auditability.
 
-**Audit Trail** never stores current state directly in the database. Instead:
-1. Every change is stored as an **immutable, append-only event** in MongoDB.
-2. Current shipment state is calculated on demand by **replaying ("folding")** all events for an `aggregateId` in chronological order (`v1 → vN`).
+**Audit Trail** never mutates state in the Event Store. State transitions are captured as an immutable, append-only chronological stream of events. A dedicated background projection worker materializes optimized **Read Models**, while pure in-memory folding enables exact temporal rewind to any historical version.
 
-### Event Stream Example
+### End-to-End CQRS & Projection Pipeline
 ```
-[CONTAINER_CREATED] → [LOADED_ON_SHIP] → [TEMPERATURE_SPIKE] → [ARRIVED_AT_PORT] → [CUSTOMS_CLEARED]
-```
-
-### Architecture Diagram (CQRS Pattern)
-```
- +-----------------------------------------------------------------------+
- |                              FRONTEND                                 |
- |                     (React 18 + Vite + Tailwind)                      |
- +-----------------------------------+-----------------------------------+
-                                     |
-               Command Path (Write)  |  Query Path (Read)
-               [POST /create, /move] |  [GET /:id, /:id/events, /recent]
-                                     v
- +-----------------------------------------------------------------------+
- |                               EXPRESS                                 |
- |                                                                       |
- |   COMMAND SERVICE                         QUERY SERVICE               |
- |   - Validate command                      - Fetch ordered event stream|
- |   - Get max(version) + 1                  - Execute Replay Engine     |
- |   - Append immutable event                - Return computed state     |
- +-----------------------------------+-----------------------------------+
-                                     |
-                                     v
- +-----------------------------------------------------------------------+
- |                               MONGODB                                 |
- |                 Collection: `events` (Append Only)                    |
- |          Compound Index: { aggregateId: 1, version: 1 }               |
- +-----------------------------------------------------------------------+
+COMMAND / CQRS WRITE
+        ↓
+IMMUTABLE EVENT STORE (`events` collection / append-only)
+        ↓
+BACKGROUND PROJECTION WORKER (`ProjectionWorker.ts` / polls with checkpoints)
+        ↓
+QUERY-OPTIMIZED READ MODEL (`ShipmentReadModel` collection)
+        ↓
+QUERY API (`/api/shipments`, `/api/shipments/:id`, `/api/shipments/:id/state-at`)
+        ↓
+FORENSIC UI CONSOLE (React 18 + Vite + Master-Detail Timeline Rail)
 ```
 
 ---
 
-## 🛠️ Tech Stack
+## ⚙️ Week 3 Core Components
 
-- **Frontend**: React 18, Vite, Tailwind CSS 3, Zustand, Axios, Lucide React, Recharts
-- **Backend**: Node.js 20+, Express.js, Mongoose (MongoDB ODM), dotenv, cors
-- **Database**: MongoDB (`events` collection) with automatic `mongodb-memory-server` fallback for zero-config local runs
+### 1. Read Model Projections (`ShipmentReadModel`)
+- Materialized query representations designed for fast listing, filtering, and metric calculation without repeatedly replaying the entire history of every aggregate.
+- Fields: `aggregateId`, `origin`, `destination`, `carrier`, `vessel`, `currentLocation`, `status`, `lastTemperature`, `eventCount`, `latestVersion`, `updatedAt`.
+- Idempotency guard: If an event version has already been applied, duplicate processing is safely discarded to prevent double-counting or state corruption.
 
----
+### 2. Background Projection Worker (`projectionWorker.ts`)
+- An independent Node.js process polling the Event Store for newly appended events.
+- **Progress Tracking & Checkpoint**: Checkpoint state (`ProjectionCheckpoint`) tracks `projectionName`, `lastProcessedVersion`, `lastProcessedEventId`, and `lastProcessedTimestamp`.
+- **Worker Recovery & Restart**: On restart, the worker queries only events occurring at or after the persisted checkpoint timestamp, skipping already projected events and resuming execution seamlessly without duplicate work.
+- **Fault Tolerance**: If an individual event projection fails, the worker logs the failure and halts the batch before updating the checkpoint, guaranteeing that failing events are never skipped.
 
-## 📁 Directory Structure
-
-```
-audit-trail/
-├── client/
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── layout/
-│   │   │   │   ├── Navbar.jsx
-│   │   │   │   └── ThemeToggle.jsx
-│   │   │   ├── dashboard/
-│   │   │   │   ├── SearchBar.jsx
-│   │   │   │   ├── RecentShipments.jsx
-│   │   │   │   ├── EmptyState.jsx
-│   │   │   │   └── StateSummaryCard.jsx
-│   │   │   └── timeline/
-│   │   │       ├── EventTimeline.jsx
-│   │   │       ├── TimelineNode.jsx
-│   │   │       └── TimelineSkeleton.jsx
-│   │   ├── store/
-│   │   │   └── useShipmentStore.js       (Zustand store)
-│   │   ├── lib/
-│   │   │   ├── api.js                    (Axios instance & API callers)
-│   │   │   └── eventIcons.js             (eventType -> Lucide icon mapping)
-│   │   ├── App.jsx
-│   │   ├── main.jsx
-│   │   └── index.css
-│   ├── tailwind.config.js
-│   ├── vite.config.js
-│   └── package.json
-│
-├── server/
-│   ├── src/
-│   │   ├── models/
-│   │   │   └── Event.js                  (Mongoose schema)
-│   │   ├── routes/
-│   │   │   ├── commandRoutes.js
-│   │   │   └── queryRoutes.js
-│   │   ├── services/
-│   │   │   ├── commandService.js
-│   │   │   └── queryService.js
-│   │   ├── utils/
-│   │   │   └── replayEvents.js           (Pure fold/replay logic)
-│   │   ├── seed/
-│   │   │   └── seedEvents.js             (Sample data loader)
-│   │   ├── config/
-│   │   │   └── db.js                     (MongoDB connector)
-│   │   └── app.js
-│   ├── server.js
-│   └── package.json
-│
-├── .gitignore
-├── .env.example
-└── README.md
-```
-
----
-
-## 🚀 Quickstart & Installation
-
-### 1. Install Server Dependencies
-```bash
-cd server
-npm install
-```
-
-### 2. Seed Sample Database
-Populates `SHIP-1001` and `SHIP-1002` event streams:
-```bash
-npm run seed
-```
-
-### 3. Start Backend Server
-```bash
-npm run dev
-# Server starts at http://localhost:5000
-```
-
-### 4. Install & Start Frontend (New Terminal Window)
-```bash
-cd client
-npm install
-npm run dev
-# Frontend runs at http://localhost:3000
-```
+### 3. Historical State Scrubbing (`GET /api/shipments/:id/state-at?version=N`)
+- Reconstructs the exact state of any shipment aggregate at version `N` or timestamp `T` by fetching the aggregate's immutable event stream and performing a **pure, deterministic fold** over `events[0...N-1]`.
+- **Absolute Immutability**:
+  - Does NOT mutate the Event Store.
+  - Does NOT mutate or corrupt the live Read Model.
+  - Does NOT insert or delete events.
+  - Historical mode is strictly read-only; write actions are disabled until live state is restored.
 
 ---
 
 ## 📡 API Contract
 
-### Command Routes (Write Operations)
+| Method | Endpoint | Parameters | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/shipments` | None | Returns all shipments materialized from the Read Model |
+| `GET` | `/api/shipments/:id` | `id` (path) | Returns a single shipment aggregate from the Read Model with full event stream |
+| `GET` | `/api/shipments/:id/events` | `id` (path) | Returns chronological immutable event stream for the aggregate |
+| `GET` | `/api/shipments/:id/state-at` | `id` (path), `version` (query), `timestamp` (query) | Reconstructs historical state via pure event replay up to version or timestamp |
+| `POST` | `/api/shipments` | `aggregateId`, `origin`, `destination`, `carrier`, `vessel` | Dispatches CQRS command to create a new container aggregate (`v1`) |
+| `POST` | `/api/shipments/:id/move` | `location`, `vessel`, `operator`, `notes` | Dispatches CQRS command appending a movement event |
+| `POST` | `/api/shipments/:id/events` | `eventType`, `payload` | Dispatches arbitrary domain event (e.g. `TEMPERATURE_SPIKE`, `ARRIVED_AT_PORT`) |
 
-#### `POST /api/shipment/create`
-Creates version 1 `CONTAINER_CREATED` event.
-```json
-// Request Body
-{
-  "aggregateId": "SHIP-1003",
-  "payload": {
-    "origin": "Port of Tokyo, JP",
-    "destination": "Port of Vancouver, CA",
-    "carrier": "NYK Line",
-    "cargoDescription": "Automotive Sensor Arrays",
-    "maxTempThreshold": 20
-  }
-}
+---
+
+## 🚀 Running Week 3 Locally
+
+### 1. Install Dependencies
+```bash
+# In project root
+cd server && npm install
+cd ../client && npm install
 ```
 
-#### `POST /api/shipment/move`
-Appends next event with `version = lastVersion + 1`.
-```json
-// Request Body
-{
-  "aggregateId": "SHIP-1001",
-  "eventType": "TEMPERATURE_SPIKE",
-  "payload": {
-    "currentTemp": 29.5,
-    "threshold": 22,
-    "sensorId": "REEFER-SENS-09",
-    "severity": "CRITICAL"
-  }
-}
+### 2. Seed Deterministic Demo Dataset
+Seeds 6 shipment aggregates across varied global routes with multi-version lifecycle events:
+```bash
+cd server
+---
+
+## ⚡ Week 4 Core Components & Enhancements
+
+### 1. Optimistic Concurrency Control (OCC)
+- **Problem**: Concurrent write operations can overwrite or desynchronize aggregate versions if stale snapshot commands are accepted.
+- **Implementation**:
+  - Commands transmit `aggregateId` and `expectedVersion`.
+  - Backend queries current head version from the Event Store.
+  - **Match**: If `expectedVersion === currentVersion`, the command is accepted, appended, and the version increments to `currentVersion + 1`.
+  - **Mismatch**: If `expectedVersion !== currentVersion`, the command is rejected with an HTTP `409 CONFLICT` response:
+    ```json
+    {
+      "success": false,
+      "error": "Shipment has been modified by another operation. Refresh the shipment and try again.",
+      "code": "CONCURRENCY_CONFLICT",
+      "expectedVersion": 1,
+      "currentVersion": 2,
+      "aggregateId": "AT-2048"
+    }
+    ```
+  - **Zero Overwrite Guarantee**: Rejected commands are never written to MongoDB or in-memory storage, preserving append-only immutability.
+  - **Conflict UI State**: Professional modal and inline banners displaying submitted vs current versions with a one-click `[Refresh Shipment]` sync action.
+
+### 2. Recharts Sensor Telemetry & Event Timeline Overlay
+- Professional cold-chain telemetry curve (`SensorTelemetryChart.tsx`) rendered with Recharts.
+- Each event milestone (`CONTAINER_CREATED`, `LOADED_ON_SHIP`, `TEMPERATURE_SPIKE`, `ARRIVED_AT_PORT`, `CUSTOMS_CLEARED`, `DELIVERED`) is visually mapped as an interactive node along the temperature line.
+- **Anomaly Detection**: `TEMPERATURE_SPIKE` events display distinct pulsing hazard badges and custom red highlight rings.
+- **Reference Threshold Lines**: Safe operating limits (e.g. `-15°C` limit for cold-chain vaccines/pharma) visually overlaid with dashed indicators.
+- **Synchronized Forensic Tooltips**: Hovering or clicking points reveals timestamp, temperature, event type, reported location, operator, and shipment ID, and automatically selects the event in the audit inspector.
+- **Historical Scrubbing Compatibility**: Event points beyond the scrubber cutoff are dynamically dimmed and dashed.
+
+### 3. Redesigned Enterprise Control Tower & Detail Rail
+- Design aesthetic inspired by modern enterprise systems (Linear, Datadog, Grafana, Samsara, Flexport).
+- **Operations Dashboard (`OverviewPage.tsx`)**:
+  - Live search across shipment ID, ports, vessels, and carriers.
+  - Quick status filter tabs (All, Active, In Transit, Delivered, Anomalies).
+  - Summary KPI cards calculated purely from real application data.
+  - Master-Detail fleet layout with selected shipment preview drawer and global ledger stream.
+- **Event Timeline Rail (`EventTimeline.tsx`)**:
+  - Domain-specific status icons for each lifecycle milestone.
+  - Formatted timestamps (`29 Sep 2026 • 14:32:00`).
+  - Clear status pills and contextual short descriptions.
+  - Visual immutability header: `AUDIT STORE • APPEND-ONLY • IMMUTABLE EVENTS`.
+- **Forensic Event Details Panel (`EventDetailsPanel.tsx`)**:
+  - Clean audit-log presentation separating domain parameters, cold-chain sensor telemetry, actor signatures, and collapsible cryptographic JSON with 1-click copy.
+
+---
+
+## 📡 API Contract
+
+| Method | Endpoint | Parameters | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/shipments` | None | Returns all shipments materialized from the Read Model |
+| `GET` | `/api/shipments/:id` | `id` (path) | Returns single shipment aggregate from Read Model with full event stream |
+| `GET` | `/api/shipments/:id/events` | `id` (path) | Returns chronological immutable event stream for aggregate |
+| `GET` | `/api/shipments/:id/state-at` | `id`, `version`, `timestamp` | Deterministic fold historical state reconstruction |
+| `POST` | `/api/shipments` | `aggregateId`, `origin`, `destination`, `expectedVersion?` | Dispatches CreateShipment command (v1) |
+| `POST` | `/api/shipments/:id/move` | `location`, `vessel`, `expectedVersion` | Dispatches MoveShipment command with OCC check |
+| `POST` | `/api/shipments/:id/events` | `eventType`, `payload`, `expectedVersion` | Dispatches arbitrary domain event with OCC check |
+
+---
+
+## 🚀 Running the Application Locally
+
+### 1. Seed Deterministic Dataset
+Seeds shipment aggregates with rich lifecycle events and continuous cold-chain sensor telemetry:
+```bash
+cd server
+npm run seed
+```
+
+### 2. Run Automated Verification Suites
+Runs the complete 66-point test suite (Week 3 + Week 4 OCC):
+```bash
+cd server
+npm test
+# Or run specifically Week 4 OCC tests:
+npm run test:week4
+```
+
+### 3. Start Backend Server
+```bash
+cd server
+npm run dev
+# Express API listens on http://localhost:5000
+```
+
+### 4. Start Frontend Console
+```bash
+cd client
+npm run dev
+# React Vite Console accessible at http://localhost:3000
 ```
 
 ---
 
-### Query Routes (Read Operations)
+## 🧪 Week 4 Verification & Demo Checklist
 
-#### `GET /api/shipment/:id/events`
-Returns raw ordered array of all events for an aggregateId.
-```json
-[
-  {
-    "_id": "...",
-    "aggregateId": "SHIP-1001",
-    "eventType": "CONTAINER_CREATED",
-    "payload": { ... },
-    "version": 1,
-    "timestamp": "2026-08-20T08:00:00.000Z"
-  },
-  {
-    "_id": "...",
-    "aggregateId": "SHIP-1001",
-    "eventType": "LOADED_ON_SHIP",
-    "payload": { ... },
-    "version": 2,
-    "timestamp": "2026-08-21T14:30:00.000Z"
-  }
-]
-```
+1. **Optimistic Concurrency Control (OCC)**:
+   - Click `Dispatch Shipment Command` on `AT-2048` (Head v5).
+   - Expand `Optimistic Concurrency Control (OCC) Settings` and click `Simulate Stale Version (v4)`.
+   - Submit the command. Observe the HTTP `409 Concurrency Conflict` banner:
+     - `Your Version: v4 • Current Version: v5`
+     - Notice: `Your command was not written to the Event Store.`
+     - Click `Refresh Shipment` to re-sync to head and clear the conflict.
+2. **Recharts Sensor Telemetry Chart**:
+   - Inspect `http://localhost:3000/shipments/AT-2048`.
+   - Observe the temperature curve with event milestone nodes.
+   - Observe the distinct `SPIKE` anomaly marker at `-11.4°C` and the `-15°C` limit reference line.
+   - Click any point on the chart to jump directly to that event in the forensic inspector and timeline.
+3. **Historical State Scrubbing with Chart & Timeline Overlay**:
+   - Move the scrubber to `v2`.
+   - Observe the milestone rail, timeline, and sensor chart dynamically reflecting the state up to version 2, dimming subsequent events without corrupting live data.
 
-#### `GET /api/shipment/:id`
-Returns computed current state via replay/fold:
-```json
-{
-  "aggregateId": "SHIP-1001",
-  "currentState": {
-    "aggregateId": "SHIP-1001",
-    "status": "CUSTOMS_CLEARED",
-    "location": "Port of Long Beach",
-    "carrier": "Pacific Ocean Logistics",
-    "hasActiveAlert": true,
-    "temperatureAlerts": [ ... ]
-  },
-  "lastUpdated": "2026-08-27T09:00:00.000Z",
-  "eventCount": 5
-}
-```
-
-#### `GET /api/shipments/recent`
-Returns top 5 distinct shipment IDs with latest timestamp:
-```json
-[
-  {
-    "aggregateId": "SHIP-1001",
-    "latestEvent": "CUSTOMS_CLEARED",
-    "lastUpdated": "2026-08-27T09:00:00.000Z",
-    "eventCount": 5
-  }
-]
-```

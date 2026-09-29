@@ -13,7 +13,20 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Health Check
+// Root & Health Check
+app.get('/', (_req, res) => {
+  res.status(200).json({
+    status: 'OK',
+    service: 'Audit Trail CQRS Event Store API',
+    endpoints: {
+      health: '/health',
+      shipments: '/api/shipments',
+      frontend: 'http://localhost:3000',
+    },
+    timestamp: new Date().toISOString(),
+  });
+});
+
 app.get('/health', (_req, res) => {
   res.status(200).json({
     status: 'OK',
