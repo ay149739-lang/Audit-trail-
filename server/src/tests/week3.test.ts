@@ -1,7 +1,7 @@
 import { EventStoreService } from '../services/eventStore';
 import { ProjectionService } from '../services/projectionService';
 import { ShipmentQueryHandler } from '../queries/shipmentQueries';
-import { EventType, IEvent } from '../types';
+import { EventType } from '../types';
 
 let passedTests = 0;
 let totalTests = 0;
@@ -93,7 +93,6 @@ async function runWeek3Tests() {
 
   // TEST SUITE 2: IDEMPOTENCY & DUPLICATE EVENT HANDLING
   console.log('\n2. Testing Idempotency (Duplicate Event Re-Processing)...');
-  // Re-project e2 (version 2) on a read model that is already at version 5
   await ProjectionService.projectEvent(e2);
   rm = await ProjectionService.getReadModelShipmentById(testId);
   assert(rm?.eventCount === 5, 'Duplicate event processing does not increment eventCount');
@@ -110,45 +109,37 @@ async function runWeek3Tests() {
     location: 'Port of Los Angeles, Consignee Facility',
   });
 
-  // Run projection batch
   const processedCount = await ProjectionService.runProjectionBatch();
   assert(processedCount >= 1, 'Projection batch processes newly appended events');
 
   const checkpointAfter = await ProjectionService.getCheckpoint();
   assert(checkpointAfter.lastProcessedVersion >= 6, 'Checkpoint records last processed version >= 6');
 
-  // Simulate worker restart (running batch again should process 0 new events)
   const rerunCount = await ProjectionService.runProjectionBatch();
   assert(rerunCount === 0, 'Worker resumes from checkpoint and skips already projected events');
 
   // TEST SUITE 4: HISTORICAL STATE RECONSTRUCTION (PURE DETERMINISTIC FOLDING)
   console.log('\n4. Testing Historical State Reconstruction...');
-
-  // State at v1: Should be CREATED at Tokyo
   const stateAtV1 = await ShipmentQueryHandler.handleGetShipmentStateAt(testId, 1);
   assert(stateAtV1 !== null, 'State at v1 reconstructed');
   assert(stateAtV1?.status === 'CREATED', 'State at v1 has status CREATED');
   assert(stateAtV1?.origin === 'Port of Tokyo, JP', 'State at v1 has origin Port of Tokyo');
   assert(stateAtV1?.events.length === 1, 'State at v1 includes exactly 1 event');
 
-  // State at v2: Should be IN_TRANSIT at Sector 1
   const stateAtV2 = await ShipmentQueryHandler.handleGetShipmentStateAt(testId, 2);
   assert(stateAtV2?.status === 'IN_TRANSIT', 'State at v2 has status IN_TRANSIT');
   assert(stateAtV2?.currentLocation === 'Pacific Ocean Transit Sector 1', 'State at v2 has currentLocation Sector 1');
   assert(stateAtV2?.events.length === 2, 'State at v2 includes exactly 2 events');
 
-  // State at v3: Should be IN_TRANSIT at Waypoint Alpha
   const stateAtV3 = await ShipmentQueryHandler.handleGetShipmentStateAt(testId, 3);
   assert(stateAtV3?.currentLocation === 'Mid-Pacific Waypoint Alpha', 'State at v3 has currentLocation Mid-Pacific Waypoint Alpha');
   assert(stateAtV3?.events.length === 3, 'State at v3 includes exactly 3 events');
 
-  // State at v4: Should be WARNING with temperature 34.5
   const stateAtV4 = await ShipmentQueryHandler.handleGetShipmentStateAt(testId, 4);
   assert(stateAtV4?.status === 'WARNING', 'State at v4 has status WARNING');
   assert(stateAtV4?.lastTemperature === 34.5, 'State at v4 has temperature 34.5');
   assert(stateAtV4?.events.length === 4, 'State at v4 includes exactly 4 events');
 
-  // State at v5: Should be AT_PORT at Los Angeles
   const stateAtV5 = await ShipmentQueryHandler.handleGetShipmentStateAt(testId, 5);
   assert(stateAtV5?.status === 'AT_PORT', 'State at v5 has status AT_PORT');
   assert(stateAtV5?.currentLocation === 'Port of Los Angeles, Pier 400', 'State at v5 has currentLocation Port of Los Angeles');
@@ -171,13 +162,86 @@ async function runWeek3Tests() {
   const invalidVersion = await ShipmentQueryHandler.handleGetShipmentStateAt(testId, 0);
   assert(invalidVersion === null, 'Querying version 0 returns null safely');
 
+  // REGRESSION TEST 7: INSPECTION_PASSED REDUCER BEHAVIOR & SINGLE SOURCE OF TRUTH
+  console.log('\n7. Testing INSPECTION_PASSED & Single Source of Truth Across Services...');
+  const inspectId = 'TEST-INSPECT-888';
+  await EventStoreService.appendEvent(inspectId, EventType.CONTAINER_CREATED, {
+    origin: 'Port of Hamburg',
+    destination: 'Port of Felixstowe',
+  });
+  await EventStoreService.appendEvent(inspectId, EventType.ARRIVED_AT_PORT, {
+    location: 'Felixstowe Gate 2',
+  });
+  const inspectEvent = await EventStoreService.appendEvent(inspectId, EventType.INSPECTION_PASSED, {
+    operator: 'Border Security Officer',
+    status: 'CUSTOMS_CLEARED',
+    notes: 'Container physical scan passed with zero anomalies',
+    temperature: 4.2,
+  });
+
+  // 1. Through ProjectionService
+  await ProjectionService.runProjectionBatch();
+  const projReadModel = await ProjectionService.getReadModelShipmentById(inspectId);
+
+  // 2. Through EventStoreService state reconstruction
+  const eventStoreProj = await EventStoreService.getShipmentProjection(inspectId);
+
+  // 3. Through ShipmentQueryHandler state-at-version query
+  const queryStateAt = await ShipmentQueryHandler.handleGetShipmentStateAt(inspectId, 3);
+
+  assert(projReadModel !== null, 'Read model materialized for inspect aggregate');
+  assert(eventStoreProj !== null, 'Event store projected inspect aggregate');
+  assert(queryStateAt !== null, 'Historical state reconstructed for inspect aggregate');
+
+  assert(
+    projReadModel?.status === 'CUSTOMS_CLEARED',
+    'Projection handles INSPECTION_PASSED -> status is CUSTOMS_CLEARED'
+  );
+  assert(
+    eventStoreProj?.status === 'CUSTOMS_CLEARED',
+    'EventStore handles INSPECTION_PASSED -> status is CUSTOMS_CLEARED'
+  );
+  assert(
+    queryStateAt?.status === 'CUSTOMS_CLEARED',
+    'Historical Query handles INSPECTION_PASSED -> status is CUSTOMS_CLEARED'
+  );
+
+  assert(
+    projReadModel?.status === eventStoreProj?.status && eventStoreProj?.status === queryStateAt?.status,
+    'All three components yield identical status for INSPECTION_PASSED'
+  );
+  assert(
+    projReadModel?.lastTemperature === eventStoreProj?.lastTemperature &&
+      eventStoreProj?.lastTemperature === queryStateAt?.lastTemperature,
+    'All three components yield identical lastTemperature for INSPECTION_PASSED'
+  );
+  assert(
+    projReadModel?.latestVersion === eventStoreProj?.latestVersion &&
+      eventStoreProj?.latestVersion === queryStateAt?.latestVersion,
+    'All three components yield identical latestVersion'
+  );
+
+  // REGRESSION TEST 8: FIX N+1 QUERY & PAGINATION IN SHIPMENT LISTING
+  console.log('\n8. Testing N+1 Fix & Pagination in handleGetAllShipments...');
+  const paginatedResult = await ShipmentQueryHandler.handleGetAllShipments(1, 1);
+  assert(paginatedResult.shipments.length === 1, 'handleGetAllShipments paginates properly with limit 1');
+  assert(paginatedResult.total >= 2, 'Total shipment count is correctly reported');
+  assert(paginatedResult.page === 1, 'Page number is 1');
+  assert(paginatedResult.limit === 1, 'Limit is 1');
+
+  // Verify that listing does NOT attach bulky event arrays
+  const firstShipment = paginatedResult.shipments[0];
+  assert(
+    (firstShipment as any).events === undefined,
+    'handleGetAllShipments does NOT load complete event streams (N+1 query eliminated)'
+  );
+
   console.log('\n====================================================');
-  console.log(`TEST SUMMARY: ${passedTests}/${totalTests} tests passed.`);
+  console.log(`WEEK 3 TEST SUMMARY: ${passedTests}/${totalTests} tests passed.`);
   console.log('====================================================\n');
 
   if (passedTests === totalTests) {
-    console.log('ALL WEEK 3 REQUIREMENTS VERIFIED SUCCESSFULLY.');
-    process.exit(0);
+    console.log('ALL WEEK 3 & REGRESSION REQUIREMENTS VERIFIED SUCCESSFULLY.');
   } else {
     console.error('SOME TESTS FAILED.');
     process.exit(1);

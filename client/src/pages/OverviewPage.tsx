@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { useShipmentStore } from '../store/useShipmentStore';
 import { IEvent, ShipmentAggregate } from '../types';
+import { shipmentApi } from '../api/shipments';
 import { PrimaryButton } from '../components/PrimaryButton';
 
 interface OverviewPageProps {
@@ -37,8 +38,19 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({ onOpenNewShipmentMod
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [selectedPreviewShipment, setSelectedPreviewShipment] = useState<ShipmentAggregate | null>(null);
 
+  const [recentEvents, setRecentEvents] = useState<(IEvent & { aggregateId: string })[]>([]);
+
   useEffect(() => {
     fetchShipments();
+
+    // Priority 7: Lightweight real-time synchronization via 5s polling
+    const pollTimer = setInterval(() => {
+      fetchShipments(true);
+    }, 5000);
+
+    return () => {
+      clearInterval(pollTimer);
+    };
   }, [fetchShipments]);
 
   const safeShipments = Array.isArray(shipments) ? shipments : [];
@@ -50,6 +62,36 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({ onOpenNewShipmentMod
       setSelectedPreviewShipment(warningShipment || safeShipments[0]);
     }
   }, [safeShipments, selectedPreviewShipment]);
+
+  // Priority 2: Collect recent events via dedicated event endpoint without N+1 backend listing
+  useEffect(() => {
+    if (safeShipments.length === 0) return;
+    let isMounted = true;
+
+    // Fetch chronological events for the top 5 shipments
+    const topShipments = safeShipments.slice(0, 5);
+    Promise.all(
+      topShipments.map(async (s) => {
+        try {
+          const events = await shipmentApi.getShipmentEvents(s.aggregateId);
+          return (events || []).map((e) => ({ ...e, aggregateId: s.aggregateId }));
+        } catch {
+          return [];
+        }
+      })
+    ).then((eventArrays) => {
+      if (!isMounted) return;
+      const combined = eventArrays
+        .flat()
+        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+        .slice(0, 7);
+      setRecentEvents(combined);
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [safeShipments]);
 
   // Aggregate metrics calculation purely from real data
   const totalShipments = safeShipments.length;
@@ -80,14 +122,6 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({ onOpenNewShipmentMod
       return matchesSearch && matchesStatus;
     });
   }, [safeShipments, searchTerm, statusFilter]);
-
-  // Collect recent events from all shipments
-  const recentEvents: (IEvent & { aggregateId: string })[] = useMemo(() => {
-    return safeShipments
-      .flatMap((s) => (s?.events || []).map((e) => ({ ...e, aggregateId: s?.aggregateId || 'UNKNOWN' })))
-      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-      .slice(0, 7);
-  }, [safeShipments]);
 
   // Skeleton loaders for zero-jump loading state
   if (isLoading && safeShipments.length === 0) {
@@ -135,7 +169,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({ onOpenNewShipmentMod
               </span>
             </div>
             <p className="text-xs text-[#4A4A45] dark:text-[#9E9E98] mt-1 font-sans">
-              Immutable event sourcing • CQRS read-model projections • Optimistic concurrency control (OCC)
+              Real-time custody tracking • Tamper-evident ledger • Cold chain &amp; route telemetry
             </p>
           </div>
 
@@ -221,7 +255,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({ onOpenNewShipmentMod
           </div>
           <div className="mt-3 flex items-baseline gap-2">
             <span className="text-4xl font-bold tracking-tight text-[#252525] dark:text-[#F5F5F0] font-mono">{totalShipments}</span>
-            <span className="text-xs text-[#6B6B66] dark:text-[#9E9E98] font-mono">Aggregates</span>
+            <span className="text-xs text-[#6B6B66] dark:text-[#9E9E98] font-mono">Consignments</span>
           </div>
           <div className="mt-2 text-xs text-[#6B6B66] dark:text-[#9E9E98] font-mono flex items-center gap-1 group-hover:text-[#E56B2F] dark:group-hover:text-[#E5A93C] transition-colors">
             <span>View all shipments →</span>

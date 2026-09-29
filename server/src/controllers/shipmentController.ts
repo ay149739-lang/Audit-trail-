@@ -3,7 +3,10 @@ import { ShipmentCommandHandler } from '../commands/shipmentCommands';
 import { ShipmentQueryHandler } from '../queries/shipmentQueries';
 
 export class ShipmentController {
-
+  /**
+   * POST /api/shipments
+   * Dispatches CreateShipmentCommand with validated schema
+   */
   static async createShipment(req: Request, res: Response, next: NextFunction) {
     try {
       const { aggregateId, origin, destination, carrier, vessel, operator, expectedVersion } = req.body;
@@ -83,20 +86,28 @@ export class ShipmentController {
     }
   }
 
-
   // --- QUERY CONTROLLERS ---
 
   /**
    * GET /api/shipments
-   * Executes GetAllShipments query
+   * Executes GetAllShipments query without N+1 event queries.
+   * Supports optional pagination: ?page=1&limit=20
    */
-  static async getShipments(_req: Request, res: Response, next: NextFunction) {
+  static async getShipments(req: Request, res: Response, next: NextFunction) {
     try {
-      const shipments = await ShipmentQueryHandler.handleGetAllShipments();
+      const page = req.query.page ? parseInt(String(req.query.page), 10) : undefined;
+      const limit = req.query.limit ? parseInt(String(req.query.limit), 10) : undefined;
+
+      const result = await ShipmentQueryHandler.handleGetAllShipments(page, limit);
+
       res.status(200).json({
         success: true,
-        count: shipments.length,
-        data: shipments,
+        count: result.shipments.length,
+        total: result.total,
+        page: result.page,
+        limit: result.limit,
+        totalPages: Math.ceil(result.total / (result.limit || 1)) || 1,
+        data: result.shipments,
       });
     } catch (error) {
       next(error);
@@ -105,7 +116,7 @@ export class ShipmentController {
 
   /**
    * GET /api/shipments/:id
-   * Executes GetShipmentById query
+   * Executes GetShipmentById query (detailed view including full event history)
    */
   static async getShipmentById(req: Request, res: Response, next: NextFunction) {
     try {
@@ -150,14 +161,17 @@ export class ShipmentController {
 
   /**
    * GET /api/shipments/:id/state-at
+   * and GET /api/shipments/:id/state-at/:version
    * Executes Historical State Scrubbing Query without altering live state
    */
   static async getShipmentStateAt(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
-      const { version, timestamp } = req.query;
+      const rawVersion = req.params.version ?? req.query.version;
+      const timestamp = req.query.timestamp;
 
-      const parsedVersion = version ? parseInt(String(version), 10) : undefined;
+      const parsedVersion =
+        rawVersion !== undefined && rawVersion !== '' ? parseInt(String(rawVersion), 10) : undefined;
       const parsedTimestamp = timestamp ? String(timestamp) : undefined;
 
       const historicalState = await ShipmentQueryHandler.handleGetShipmentStateAt(

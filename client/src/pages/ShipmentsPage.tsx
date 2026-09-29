@@ -70,10 +70,10 @@ export const ShipmentsPage: React.FC<ShipmentsPageProps> = ({ onOpenNewShipmentM
       <div className="flex flex-wrap items-center justify-between gap-4 bg-white dark:bg-[#1F1F1F] p-5 rounded-lg border border-[#DDDCD6] dark:border-[#333333] shadow-elev-1">
         <div>
           <h1 className="text-xl font-bold text-[#252525] dark:text-[#F5F5F0] tracking-tight font-sans">
-            Shipments Aggregate Directory
+            Shipment Fleet &amp; Custody Ledger
           </h1>
           <p className="text-xs text-[#4A4A45] dark:text-[#9E9E98] font-sans mt-1">
-            Materialized read-model projections synchronized from immutable event streams
+            Active chain-of-custody records, port clearance status, and route telemetry
           </p>
         </div>
 

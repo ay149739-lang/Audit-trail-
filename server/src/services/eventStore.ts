@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import { EventModel } from '../models/Event';
 import { IEvent, EventType, ShipmentAggregate, EventPayload } from '../types';
+import { reduceShipmentState, createInitialShipmentState } from '../domain/shipmentReducer';
 
 // In-memory store fallback when DB is disconnected
 const inMemoryStore: IEvent[] = [];
@@ -139,75 +140,14 @@ export class EventStoreService {
     const events = await this.getEventsForAggregate(aggregateId);
     if (events.length === 0) return null;
 
-    let origin = 'Unknown Origin';
-    let destination = 'Unknown Destination';
-    let carrier = 'Global Express Logistics';
-    let vessel = 'MV TransOcean';
-    let currentLocation = 'In Transit';
-    let status: ShipmentAggregate['status'] = 'CREATED';
-    let lastTemperature: number | undefined = undefined;
+    let state = createInitialShipmentState(aggregateId, events[0]);
 
     for (const event of events) {
-      const p = event.payload || {};
-
-      if (event.eventType === EventType.CONTAINER_CREATED || event.eventType === 'CONTAINER_CREATED') {
-        origin = p.origin || origin;
-        destination = p.destination || destination;
-        carrier = p.carrier || carrier;
-        vessel = p.vessel || vessel;
-        currentLocation = p.origin || currentLocation;
-        status = 'CREATED';
-      }
-
-      if (event.eventType === EventType.LOADED_ON_SHIP || event.eventType === 'LOADED_ON_SHIP') {
-        vessel = p.vessel || vessel;
-        currentLocation = p.location || `Port of ${origin}`;
-        status = 'IN_TRANSIT';
-      }
-
-      if (event.eventType === EventType.MOVED_LOCATION || event.eventType === 'MOVED_LOCATION') {
-        currentLocation = p.location || currentLocation;
-        status = 'IN_TRANSIT';
-      }
-
-      if (event.eventType === EventType.TEMPERATURE_SPIKE || event.eventType === 'TEMPERATURE_SPIKE') {
-        lastTemperature = p.temperature !== undefined ? p.temperature : lastTemperature;
-        status = 'WARNING';
-      }
-
-      if (event.eventType === EventType.ARRIVED_AT_PORT || event.eventType === 'ARRIVED_AT_PORT') {
-        currentLocation = p.location || destination;
-        status = 'AT_PORT';
-      }
-
-      if (event.eventType === EventType.CUSTOMS_CLEARED || event.eventType === 'CUSTOMS_CLEARED') {
-        status = 'CUSTOMS_CLEARED';
-      }
-
-      if (event.eventType === EventType.DELIVERED || event.eventType === 'DELIVERED') {
-        currentLocation = p.location || destination;
-        status = 'DELIVERED';
-      }
-
-      if (p.temperature !== undefined) {
-        lastTemperature = p.temperature;
-      }
+      state = reduceShipmentState(state, event);
     }
 
-    const latestEvent = events[events.length - 1];
-
     return {
-      aggregateId: aggregateId.toUpperCase(),
-      origin,
-      destination,
-      carrier,
-      vessel,
-      currentLocation,
-      status,
-      lastTemperature,
-      eventCount: events.length,
-      latestVersion: latestEvent.version,
-      updatedAt: latestEvent.timestamp,
+      ...state,
       events,
     };
   }

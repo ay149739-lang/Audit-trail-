@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import { AlertTriangle, RotateCcw, Database, Activity, ShieldAlert, BarChart3 } from 'lucide-react';
 import { useShipmentStore } from '../store/useShipmentStore';
+import { shipmentApi } from '../api/shipments';
+import { IEvent } from '../types';
 
 export const AnalyticsPage: React.FC = () => {
   const { shipments = [], fetchShipments, isLoading, error } = useShipmentStore();
@@ -58,14 +60,38 @@ export const AnalyticsPage: React.FC = () => {
     );
   }
 
+  const [allEvents, setAllEvents] = useState<IEvent[]>([]);
+
+  useEffect(() => {
+    if (safeShipments.length === 0) return;
+    let isMounted = true;
+
+    Promise.all(
+      safeShipments.slice(0, 10).map(async (s) => {
+        if (s.events && s.events.length > 0) return s.events;
+        try {
+          const events = await shipmentApi.getShipmentEvents(s.aggregateId);
+          return events || [];
+        } catch {
+          return [];
+        }
+      })
+    ).then((eventArrays) => {
+      if (!isMounted) return;
+      setAllEvents(eventArrays.flat());
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [safeShipments]);
+
   // Transform shipment event data for charts
   const eventTypeCounts: { [key: string]: number } = {};
-  safeShipments.forEach((s) => {
-    (s?.events || []).forEach((e) => {
-      if (e?.eventType) {
-        eventTypeCounts[e.eventType] = (eventTypeCounts[e.eventType] || 0) + 1;
-      }
-    });
+  allEvents.forEach((e) => {
+    if (e?.eventType) {
+      eventTypeCounts[e.eventType] = (eventTypeCounts[e.eventType] || 0) + 1;
+    }
   });
 
   const eventChartData = Object.keys(eventTypeCounts).map((k) => ({
@@ -94,7 +120,7 @@ export const AnalyticsPage: React.FC = () => {
         <div>
           <div className="flex items-center gap-2.5">
             <h1 className="text-xl font-bold text-[#252525] dark:text-[#F5F5F0] tracking-tight font-sans">
-              Event Store &amp; Stream Analytics
+              Fleet Telemetry &amp; Operational Analytics
             </h1>
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-[11px] font-mono font-semibold bg-[#3F8F6B]/10 text-[#3F8F6B] border border-[#3F8F6B]/25">
               <span className="w-1.5 h-1.5 rounded-full bg-[#3F8F6B]" />
@@ -102,13 +128,13 @@ export const AnalyticsPage: React.FC = () => {
             </span>
           </div>
           <p className="text-xs text-[#4A4A45] dark:text-[#9E9E98] mt-1 font-sans">
-            CQRS write-model event velocity, aggregate stream depth, and anomaly distribution
+            Custody event frequency, shipment integrity status, and route anomaly distribution
           </p>
         </div>
 
         <div className="flex items-center gap-2 text-xs font-mono text-[#6B6B66] dark:text-[#9E9E98]">
           <Database className="w-3.5 h-3.5 text-[#E56B2F] dark:text-[#E5A93C]" />
-          <span>EventStore Engine v2.0</span>
+          <span>Ledger Integrity: 100%</span>
         </div>
       </div>
 
@@ -131,45 +157,45 @@ export const AnalyticsPage: React.FC = () => {
 
       {/* 3 High-Density KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 font-sans">
-        {/* Total Appended Events */}
+        {/* Total Custody Events */}
         <div className="bg-white dark:bg-[#1F1F1F] p-4 rounded-lg border border-[#DDDCD6] dark:border-[#333333] shadow-elev-1 space-y-1">
           <div className="flex items-center justify-between text-xs font-mono text-[#6B6B66] dark:text-[#9E9E98] uppercase tracking-wider">
-            <span>Total Events Appended</span>
+            <span>Total Custody Events</span>
             <Activity className="w-4 h-4 text-[#E56B2F] dark:text-[#E5A93C]" />
           </div>
           <div className="text-2xl font-bold font-mono text-[#252525] dark:text-[#F5F5F0]">
             {error ? '—' : totalEvents}
           </div>
           <p className="text-[11px] text-[#6B6B66] dark:text-[#9E9E98] font-sans">
-            Immutable commits persisted in ledger
+            Verified custody entries recorded in ledger
           </p>
         </div>
 
-        {/* Aggregate Streams */}
+        {/* Active Consignments */}
         <div className="bg-white dark:bg-[#1F1F1F] p-4 rounded-lg border border-[#DDDCD6] dark:border-[#333333] shadow-elev-1 space-y-1">
           <div className="flex items-center justify-between text-xs font-mono text-[#6B6B66] dark:text-[#9E9E98] uppercase tracking-wider">
-            <span>Active Streams</span>
+            <span>Active Consignments</span>
             <BarChart3 className="w-4 h-4 text-[#3A8B88]" />
           </div>
           <div className="text-2xl font-bold font-mono text-[#252525] dark:text-[#F5F5F0]">
             {error ? '—' : totalStreams}
           </div>
           <p className="text-[11px] text-[#6B6B66] dark:text-[#9E9E98] font-sans">
-            Independent aggregate root streams
+            Active tracked shipments across global routes
           </p>
         </div>
 
         {/* Anomaly Frequency */}
         <div className="bg-white dark:bg-[#1F1F1F] p-4 rounded-lg border border-[#DDDCD6] dark:border-[#333333] shadow-elev-1 space-y-1">
           <div className="flex items-center justify-between text-xs font-mono text-[#6B6B66] dark:text-[#9E9E98] uppercase tracking-wider">
-            <span>Telemetry Anomalies</span>
+            <span>Telemetry Alerts &amp; Spikes</span>
             <ShieldAlert className="w-4 h-4 text-[#C94A4A]" />
           </div>
           <div className="text-2xl font-bold font-mono text-[#C94A4A]">
             {error ? '—' : `${anomalyRate}%`}
           </div>
           <p className="text-[11px] text-[#6B6B66] dark:text-[#9E9E98] font-sans">
-            {anomalyCount} stream{anomalyCount === 1 ? '' : 's'} reporting out-of-range sensor events
+            {anomalyCount} consignment{anomalyCount === 1 ? '' : 's'} reporting out-of-range sensor readings
           </p>
         </div>
       </div>

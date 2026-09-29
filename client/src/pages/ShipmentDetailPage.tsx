@@ -288,7 +288,7 @@ export const ShipmentDetailPage: React.FC = () => {
                 icon={Send}
                 onClick={() => setIsRecordModalOpen(true)}
               >
-                Dispatch Shipment Command
+                Log Custody Event
               </PrimaryButton>
             )}
           </div>
@@ -351,7 +351,7 @@ export const ShipmentDetailPage: React.FC = () => {
               Historical State Scrubber
             </span>
             <span className="text-[11px] text-[#4A4A45] dark:text-[#9E9E98] font-sans">
-              (Deterministic event replay fold up to cutoff version)
+              (Point-in-time custody &amp; telemetry audit)
             </span>
           </div>
 

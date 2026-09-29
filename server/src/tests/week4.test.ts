@@ -3,6 +3,11 @@ import { ShipmentCommandHandler } from '../commands/shipmentCommands';
 import { ProjectionService } from '../services/projectionService';
 import { ShipmentQueryHandler } from '../queries/shipmentQueries';
 import { EventType } from '../types';
+import {
+  createShipmentSchema,
+  moveShipmentSchema,
+  recordEventSchema,
+} from '../validation/shipmentValidation';
 
 let passedTests = 0;
 let totalTests = 0;
@@ -92,7 +97,6 @@ async function runWeek4Tests() {
 
   // TEST 5: Client Refresh and Re-dispatch (Simulating UI Refresh Flow)
   console.log('\n5. Testing Client Refresh & Subsequent Command with Head Version (v2)...');
-  // Client refreshes, learns current version is 2, then submits with expectedVersion = 2
   const e3 = await ShipmentCommandHandler.handleRecordEvent({
     aggregateId: testId,
     eventType: EventType.TEMPERATURE_SPIKE,
@@ -127,13 +131,72 @@ async function runWeek4Tests() {
   assert(stateAtV2?.status === 'IN_TRANSIT', 'State at v2 was IN_TRANSIT');
   assert(stateAtV2?.currentLocation === 'Strait of Malacca Checkpoint', 'State at v2 location correct');
 
+  // REGRESSION TEST 7: ZOD INPUT VALIDATION ENFORCEMENT
+  console.log('\n7. Testing Zod Input Validation & Schema Rules...');
+
+  // 7.1: Invalid empty aggregateId
+  const emptyIdResult = createShipmentSchema.safeParse({ aggregateId: '' });
+  assert(!emptyIdResult.success, 'Rejects empty aggregateId');
+
+  // 7.2: Invalid aggregateId with spaces/special characters
+  const malformedIdResult = createShipmentSchema.safeParse({ aggregateId: 'INVALID ID WITH SPACES!' });
+  assert(!malformedIdResult.success, 'Rejects aggregateId with spaces or illegal characters');
+
+  // 7.3: Negative expectedVersion
+  const negativeVersionResult = createShipmentSchema.safeParse({
+    aggregateId: 'TEST-VAL-01',
+    expectedVersion: -1,
+  });
+  assert(!negativeVersionResult.success, 'Rejects negative expectedVersion (-1)');
+
+  // 7.4: Non-integer expectedVersion (floating point)
+  const floatVersionResult = moveShipmentSchema.safeParse({
+    location: 'Port of Rotterdam',
+    expectedVersion: 2.75,
+  });
+  assert(!floatVersionResult.success, 'Rejects non-integer expectedVersion (2.75)');
+
+  // 7.5: Arbitrary/illegal eventType
+  const illegalEventResult = recordEventSchema.safeParse({
+    eventType: 'TOTALLY_FAKE_ARBITRARY_EVENT',
+    payload: { status: 'HACKED' },
+  });
+  assert(!illegalEventResult.success, 'Rejects arbitrary / unrecognized eventType');
+
+  // 7.6: Malformed null/array payload in recordEvent
+  const nullPayloadResult = recordEventSchema.safeParse({
+    eventType: 'TEMPERATURE_SPIKE',
+    payload: null,
+  });
+  assert(!nullPayloadResult.success, 'Rejects null payload');
+
+  const arrayPayloadResult = recordEventSchema.safeParse({
+    eventType: 'TEMPERATURE_SPIKE',
+    payload: ['not', 'an', 'object'],
+  });
+  assert(!arrayPayloadResult.success, 'Rejects array payload when object is expected');
+
+  // 7.7: Valid payloads pass cleanly
+  const validCreation = createShipmentSchema.safeParse({
+    aggregateId: 'CONT-SAFE-100',
+    origin: 'Port of Busan',
+    expectedVersion: 0,
+  });
+  assert(validCreation.success, 'Accepts valid createShipment input');
+
+  const validRecordEvent = recordEventSchema.safeParse({
+    eventType: 'INSPECTION_PASSED',
+    payload: { inspector: 'Inspector Gadget', passed: true },
+    expectedVersion: 4,
+  });
+  assert(validRecordEvent.success, 'Accepts valid recordEvent input with integer version');
+
   console.log('\n====================================================');
   console.log(`WEEK 4 TEST SUMMARY: ${passedTests}/${totalTests} tests passed.`);
   console.log('====================================================\n');
 
   if (passedTests === totalTests) {
-    console.log('ALL WEEK 4 OCC REQUIREMENTS VERIFIED SUCCESSFULLY.');
-    process.exit(0);
+    console.log('ALL WEEK 4 OCC & VALIDATION REQUIREMENTS VERIFIED SUCCESSFULLY.');
   } else {
     console.error('SOME OCC TESTS FAILED.');
     process.exit(1);

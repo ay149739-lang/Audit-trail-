@@ -4,6 +4,7 @@ import { ShipmentReadModel, inMemoryReadModelStore, IShipmentReadModel } from '.
 import { ProjectionCheckpoint, inMemoryCheckpointStore, IProjectionCheckpoint } from '../models/ProjectionCheckpoint';
 import { IEvent, EventType } from '../types';
 import { EventStoreService } from './eventStore';
+import { reduceShipmentState, createInitialShipmentState } from '../domain/shipmentReducer';
 
 const PROJECTION_NAME = 'ShipmentReadModel';
 
@@ -95,64 +96,16 @@ export class ProjectionService {
     }
 
     if (!readModel) {
-      readModel = {
-        aggregateId,
-        origin: p.origin || 'Unknown Origin',
-        destination: p.destination || 'Unknown Destination',
-        carrier: p.carrier || 'Global Express Logistics',
-        vessel: p.vessel || 'MV TransOcean',
-        currentLocation: p.origin || 'In Transit',
-        status: 'CREATED',
-        lastTemperature: p.temperature !== undefined ? p.temperature : undefined,
-        eventCount: 0,
-        latestVersion: 0,
-        lastProcessedVersion: 0,
-        updatedAt: event.timestamp ? new Date(event.timestamp) : new Date(),
-      };
+      readModel = createInitialShipmentState(aggregateId, event) as IShipmentReadModel;
     }
 
-    // Apply deterministic projection state rules
-    const eventTypeStr = String(event.eventType);
-
-    if (eventTypeStr === EventType.CONTAINER_CREATED || eventTypeStr === 'CONTAINER_CREATED') {
-      readModel.origin = p.origin || readModel.origin;
-      readModel.destination = p.destination || readModel.destination;
-      readModel.carrier = p.carrier || readModel.carrier;
-      readModel.vessel = p.vessel || readModel.vessel;
-      readModel.currentLocation = p.origin || readModel.currentLocation;
-      readModel.status = 'CREATED';
-    } else if (eventTypeStr === EventType.LOADED_ON_SHIP || eventTypeStr === 'LOADED_ON_SHIP') {
-      readModel.vessel = p.vessel || readModel.vessel;
-      readModel.currentLocation = p.location || `Port of ${readModel.origin}`;
-      readModel.status = 'IN_TRANSIT';
-    } else if (eventTypeStr === EventType.MOVED_LOCATION || eventTypeStr === 'MOVED_LOCATION') {
-      readModel.currentLocation = p.location || readModel.currentLocation;
-      readModel.status = 'IN_TRANSIT';
-    } else if (eventTypeStr === EventType.TEMPERATURE_SPIKE || eventTypeStr === 'TEMPERATURE_SPIKE') {
-      if (p.temperature !== undefined) {
-        readModel.lastTemperature = p.temperature;
-      }
-      readModel.status = 'WARNING';
-    } else if (eventTypeStr === EventType.ARRIVED_AT_PORT || eventTypeStr === 'ARRIVED_AT_PORT') {
-      readModel.currentLocation = p.location || readModel.destination;
-      readModel.status = 'AT_PORT';
-    } else if (eventTypeStr === EventType.CUSTOMS_CLEARED || eventTypeStr === 'CUSTOMS_CLEARED') {
-      readModel.status = 'CUSTOMS_CLEARED';
-    } else if (eventTypeStr === EventType.INSPECTION_PASSED || eventTypeStr === 'INSPECTION_PASSED') {
-      readModel.status = (p.status as IShipmentReadModel['status']) || readModel.status || 'CUSTOMS_CLEARED';
-    } else if (eventTypeStr === EventType.DELIVERED || eventTypeStr === 'DELIVERED') {
-      readModel.currentLocation = p.location || readModel.destination;
-      readModel.status = 'DELIVERED';
-    }
-
-    if (p.temperature !== undefined) {
-      readModel.lastTemperature = p.temperature;
-    }
-
-    readModel.eventCount = (readModel.eventCount || 0) + 1;
-    readModel.latestVersion = Math.max(readModel.latestVersion || 0, event.version);
-    readModel.lastProcessedVersion = event.version;
-    readModel.updatedAt = event.timestamp ? new Date(event.timestamp) : new Date();
+    // Apply deterministic projection state rules via shared domain reducer
+    const updatedState = reduceShipmentState(readModel, event);
+    readModel = {
+      ...readModel,
+      ...updatedState,
+      lastProcessedVersion: event.version,
+    };
 
     if (isDbConnected) {
       await ShipmentReadModel.findOneAndUpdate({ aggregateId }, readModel, { upsert: true, new: true });
@@ -248,6 +201,45 @@ export class ProjectionService {
       return Array.from(inMemoryReadModelStore.values()).sort(
         (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
       );
+    }
+  }
+
+  /**
+   * Fetch paginated shipments from Read Model collection/store
+   */
+  static async getReadModelShipmentsPaged(
+    page?: number,
+    limit?: number
+  ): Promise<{ readModels: IShipmentReadModel[]; total: number }> {
+    const isDbConnected = mongoose.connection.readyState === 1;
+
+    if (isDbConnected) {
+      const total = await ShipmentReadModel.countDocuments({});
+      let query = ShipmentReadModel.find({}).sort({ updatedAt: -1 });
+      if (page !== undefined && limit !== undefined) {
+        const p = Math.max(1, page);
+        const l = Math.max(1, limit);
+        const skip = (p - 1) * l;
+        query = query.skip(skip).limit(l);
+      } else if (limit !== undefined) {
+        query = query.limit(Math.max(1, limit));
+      }
+      const docs = await query.lean();
+      return { readModels: docs as unknown as IShipmentReadModel[], total };
+    } else {
+      const all = Array.from(inMemoryReadModelStore.values()).sort(
+        (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+      );
+      const total = all.length;
+      if (page !== undefined && limit !== undefined) {
+        const p = Math.max(1, page);
+        const l = Math.max(1, limit);
+        const skip = (p - 1) * l;
+        return { readModels: all.slice(skip, skip + l), total };
+      } else if (limit !== undefined) {
+        return { readModels: all.slice(0, Math.max(1, limit)), total };
+      }
+      return { readModels: all, total };
     }
   }
 

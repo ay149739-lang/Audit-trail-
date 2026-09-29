@@ -162,11 +162,11 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenNewShipmentModal }) => {
 
             {/* Status Indicator */}
             <div
-              title="Append-only Event Store and Read Model projections are connected"
+              title="Tamper-evident custody ledger & real-time telemetry stream synchronized"
               className="hidden md:flex items-center gap-2 bg-[#FAF9F5] dark:bg-[#262626] border border-[#DDDCD6] dark:border-[#333333] px-3 py-2 rounded-md text-xs text-[#252525] dark:text-[#F5F5F0] font-mono cursor-default"
             >
               <span className="w-2 h-2 rounded-full bg-[#3F8F6B] dark:bg-[#3A8B88] animate-pulse"></span>
-              <span>API Online</span>
+              <span>Ledger Synchronized</span>
             </div>
           </div>
         </div>
@@ -197,7 +197,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenNewShipmentModal }) => {
                   setSelectedIndex(0);
                 }}
                 onKeyDown={handleInputKeyDown}
-                placeholder="Type shipment aggregate ID (e.g. AT-2048), carrier, or route..."
+                placeholder="Search shipment ID (e.g. AT-2048), carrier, or route..."
                 className="w-full pl-11 pr-10 py-3.5 bg-transparent text-sm text-[#252525] dark:text-[#F5F5F0] placeholder-[#4A4A45] dark:placeholder-[#9E9E98] focus:outline-none font-mono"
               />
               {searchQuery && (
@@ -214,7 +214,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenNewShipmentModal }) => {
             {/* Results Section */}
             <div className="p-2">
               <div className="px-3 py-1.5 text-[11px] font-semibold text-[#4A4A45] dark:text-[#9E9E98] uppercase tracking-wider flex items-center justify-between">
-                <span>{currentQuery ? 'Search Results' : 'Recent Active Aggregates'}</span>
+                <span>{currentQuery ? 'Search Results' : 'Recent Active Shipments'}</span>
                 <span className="font-mono text-[10px]">{filteredMatches.length} available</span>
               </div>
 

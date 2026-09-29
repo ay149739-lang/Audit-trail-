@@ -92,25 +92,27 @@
     animation-delay: 0ms;
   }
 
-  /* Quiet workspace canvas: one accent-tinted glow bleeding in from the top
-     edge over a barely-there dot grid. Gives the console a light source
-     instead of a single flat plane. Both layers stay under 6% opacity. */
+  /* Quiet workspace canvas: soft atmospheric lighting over a clean architectural matte plane.
+     Eliminates the clichéd dev-tool dot-grid in favor of an authentic operational console aesthetic. */
   .app-canvas {
-    background-color: #F4F3EF;
+    background-color: #F6F5F0;
     background-image:
-      radial-gradient(1100px 420px at 14% -10%, rgb(194 65 12 / 0.05), transparent 62%),
-      radial-gradient(circle at 1px 1px, rgb(24 24 27 / 0.05) 1px, transparent 0);
-    background-size: auto, 24px 24px;
+      radial-gradient(1200px 500px at 20% -10%, rgb(194 65 12 / 0.04), transparent 70%),
+      radial-gradient(800px 400px at 85% 10%, rgb(15 118 110 / 0.03), transparent 60%);
     background-attachment: fixed, fixed;
   }
 
   :root.dark .app-canvas {
-    background-color: #141414;
+    background-color: #121212;
     background-image:
-      radial-gradient(1100px 420px at 14% -10%, rgb(229 169 60 / 0.06), transparent 62%),
-      radial-gradient(circle at 1px 1px, rgb(255 255 255 / 0.035) 1px, transparent 0);
-    background-size: auto, 24px 24px;
+      radial-gradient(1200px 500px at 20% -10%, rgb(229 169 60 / 0.05), transparent 70%),
+      radial-gradient(800px 400px at 85% 10%, rgb(58 139 136 / 0.04), transparent 60%);
     background-attachment: fixed, fixed;
+  }
+
+  /* Precise technical instrument stroke weight for Lucide icons */
+  svg.lucide {
+    stroke-width: 1.75px;
   }
 }
 

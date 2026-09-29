@@ -21,7 +21,7 @@ interface ShipmentState {
   error: string | null;
   concurrencyConflict: ConcurrencyConflictInfo | null;
 
-  fetchShipments: () => Promise<void>;
+  fetchShipments: (silent?: boolean) => Promise<void>;
   fetchShipmentById: (id: string) => Promise<void>;
   fetchShipmentStateAt: (id: string, version: number) => Promise<void>;
   resetToLiveState: () => void;
@@ -49,16 +49,18 @@ export const useShipmentStore = create<ShipmentState>((set, get) => ({
   concurrencyConflict: null,
 
 
-  fetchShipments: async () => {
-    set({ isLoading: true, error: null });
+  fetchShipments: async (silent: boolean = false) => {
+    if (!silent) set({ isLoading: true, error: null });
     try {
       const data = await shipmentApi.getShipments();
-      set({ shipments: data, isLoading: false });
+      set({ shipments: data, ...(silent ? {} : { isLoading: false }) });
     } catch (err: any) {
-      set({
-        error: err.response?.data?.error || 'Failed to fetch shipments from Event Store',
-        isLoading: false,
-      });
+      if (!silent) {
+        set({
+          error: err.response?.data?.error || 'Failed to fetch shipments from Event Store',
+          isLoading: false,
+        });
+      }
     }
   },
 

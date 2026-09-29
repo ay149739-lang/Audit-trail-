@@ -70,7 +70,7 @@ export const SettingsPage: React.FC = () => {
               <ul className="space-y-1 text-[#6B6B66] dark:text-[#9E9E98] text-[11px]">
                 <li><code className="text-[#252525] dark:text-[#F5F5F0]">GET /api/shipments</code> (All Projected Aggregates)</li>
                 <li><code className="text-[#252525] dark:text-[#F5F5F0]">GET /api/shipments/:id</code> (Aggregated Read State)</li>
-                <li><code className="text-[#252525] dark:text-[#F5F5F0]">GET /api/shipments/:id/state-at/:v</code> (Time Rewind)</li>
+                <li><code className="text-[#252525] dark:text-[#F5F5F0]">GET /api/shipments/:id/state-at?version=:v</code> (Time Rewind)</li>
               </ul>
             </div>
           </div>

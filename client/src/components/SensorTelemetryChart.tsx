@@ -3,7 +3,6 @@ import {
   ResponsiveContainer,
   AreaChart,
   Area,
-  Line,
   XAxis,
   YAxis,
   Tooltip,
@@ -81,9 +80,9 @@ export const SensorTelemetryChart: React.FC<SensorTelemetryChartProps> = ({
   height = 240,
 }) => {
   // Extract and compute sensor telemetry points from events
-  const { chartData, thresholdValue, hasSpike } = useMemo(() => {
+  const { chartData, thresholdValue, hasSpike, temps } = useMemo(() => {
     if (!events || events.length === 0) {
-      return { chartData: [], thresholdValue: undefined, hasSpike: false };
+      return { chartData: [], thresholdValue: undefined, hasSpike: false, temps: [] };
     }
 
     let detectedThreshold: number | undefined = undefined;
@@ -97,7 +96,7 @@ export const SensorTelemetryChart: React.FC<SensorTelemetryChartProps> = ({
     );
     if (createdEvent?.payload?.targetTemp !== undefined) {
       baseTargetTemp = createdEvent.payload.targetTemp;
-      lastKnownTemp = baseTargetTemp;
+      lastKnownTemp = Number(baseTargetTemp);
     }
 
     // Process all events chronologically
@@ -142,10 +141,14 @@ export const SensorTelemetryChart: React.FC<SensorTelemetryChartProps> = ({
       };
     });
 
+    const computedTemps = points.map((d) => d.temperature);
+    if (detectedThreshold !== undefined) computedTemps.push(detectedThreshold);
+
     return {
       chartData: points,
       thresholdValue: detectedThreshold,
       hasSpike: anySpike,
+      temps: computedTemps,
     };
   }, [events, selectedEvent, activeVersionCutoff]);
 
@@ -153,7 +156,7 @@ export const SensorTelemetryChart: React.FC<SensorTelemetryChartProps> = ({
     return (
       <div className="p-8 bg-[#FAF9F5] dark:bg-[#141414] rounded-md border border-[#DDDCD6] dark:border-[#333333] text-center font-sans">
         <ThermometerSnowflake className="w-6 h-6 text-[#6B6B66] dark:text-[#9E9E98] mx-auto mb-2 opacity-50" />
-        <p className="font-mono text-xs font-bold text-[#252525] dark:text-[#F5F5F0]">No Telemetry Telemetry Stream</p>
+        <p className="font-mono text-xs font-bold text-[#252525] dark:text-[#F5F5F0]">No Telemetry Stream</p>
         <p className="text-[11px] text-[#6B6B66] dark:text-[#9E9E98]">
           Sensor metrics will automatically render as events are recorded.
         </p>
@@ -161,16 +164,14 @@ export const SensorTelemetryChart: React.FC<SensorTelemetryChartProps> = ({
     );
   }
 
-  // Calculate min and max for chart YAxis
-  const temps = chartData.map((d) => d.temperature);
-  if (thresholdValue !== undefined) temps.push(thresholdValue);
-  const minTemp = Math.floor(Math.min(...temps) - 3);
-  const maxTemp = Math.ceil(Math.max(...temps) + 3);
+  // Calculate min and max for chart YAxis (temps already computed in useMemo)
+  const minTemp = temps.length > 0 ? Math.floor(Math.min(...temps) - 3) : 15;
+  const maxTemp = temps.length > 0 ? Math.ceil(Math.max(...temps) + 3) : 35;
 
   // Custom Dot Renderer with Overlays for Special Events (Spikes, Milestones, Selection)
-  const renderCustomDot = (props: any) => {
+  const renderCustomDot = (props: any): React.ReactElement<SVGElement> => {
     const { cx, cy, payload } = props;
-    if (!cx || !cy) return null;
+    if (!cx || !cy) return <g />;
 
     const isSelected = payload.isSelected;
     const isSpike = payload.isSpike;
@@ -245,7 +246,7 @@ export const SensorTelemetryChart: React.FC<SensorTelemetryChartProps> = ({
         fill="#3F8F6B"
         stroke="#FFFFFF"
         strokeWidth={1.5}
-        className="cursor-pointer hover:r-6 transition-all"
+        className="cursor-pointer transition-all"
         onClick={() => onSelectEvent(payload.event)}
       />
     );
@@ -477,11 +478,11 @@ export const SensorTelemetryChart: React.FC<SensorTelemetryChartProps> = ({
           <span className="text-[#4A4A45] dark:text-[#9E9E98]">
             Range:{' '}
             <strong className="text-[#252525] dark:text-[#F5F5F0]">
-              {Math.min(...temps).toFixed(1)}°C
+              {temps.length > 0 ? Math.min(...temps).toFixed(1) : '0.0'}°C
             </strong>{' '}
             to{' '}
             <strong className="text-[#252525] dark:text-[#F5F5F0]">
-              {Math.max(...temps).toFixed(1)}°C
+              {temps.length > 0 ? Math.max(...temps).toFixed(1) : '0.0'}°C
             </strong>
           </span>
           {hasSpike && (
