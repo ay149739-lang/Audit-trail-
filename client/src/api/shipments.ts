@@ -7,8 +7,13 @@ import {
   RecordEventDto,
 } from '../types';
 
+const rawApiUrl = (import.meta as any).env?.VITE_API_URL;
+export const API_BASE_URL = rawApiUrl
+  ? `${String(rawApiUrl).replace(/\/$/, '')}/api`
+  : '/api';
+
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },

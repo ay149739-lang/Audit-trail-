@@ -1,6 +1,6 @@
 import app from './app';
 import { connectDB } from './config/db';
-import { runSeed } from './utils/seed';
+import { seedIfEmpty } from './utils/seed';
 import { startProjectionWorker } from './workers/projectionWorker';
 
 const PORT = process.env.PORT || 5000;
@@ -8,11 +8,11 @@ const PORT = process.env.PORT || 5000;
 async function startServer() {
   const isDbConnected = await connectDB();
   
-  // Auto-seed initial data so the app has realistic data right away
+  // Safe baseline seed: ONLY applies if Event Store is completely empty; never wipes existing data
   try {
-    await runSeed();
+    await seedIfEmpty();
   } catch (err) {
-    console.log('[Bootstrap] Initial seed check complete.');
+    console.log('[Bootstrap] Baseline seed check complete.');
   }
 
   // Start background Projection Worker process

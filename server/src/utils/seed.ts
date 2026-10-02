@@ -295,10 +295,48 @@ const seedData = [
 ];
 
 
+import mongoose from 'mongoose';
 import { ShipmentReadModel } from '../models/ShipmentReadModel';
 import { ProjectionCheckpoint } from '../models/ProjectionCheckpoint';
 import { ProjectionService } from '../services/projectionService';
 
+/**
+ * Safe baseline seed that ONLY runs if the Event Store is completely empty.
+ * NEVER deletes existing data.
+ * NEVER calls process.exit().
+ */
+export async function seedIfEmpty(): Promise<boolean> {
+  const isDbConnected = mongoose.connection.readyState === 1;
+
+  if (isDbConnected) {
+    const existingEventsCount = await EventModel.countDocuments({});
+    if (existingEventsCount > 0) {
+      console.log(`[Bootstrap] Event Store has ${existingEventsCount} events. Preserving existing data.`);
+      return false;
+    }
+  } else {
+    const inMemEvents = await EventStoreService.getAllEventsInMemory();
+    if (inMemEvents.length > 0) {
+      return false;
+    }
+  }
+
+  console.log('[Bootstrap] Empty Event Store detected. Applying baseline seed...');
+  for (const ship of seedData) {
+    for (const ev of ship.events) {
+      await EventStoreService.appendEvent(ship.aggregateId, ev.eventType, ev.payload);
+    }
+  }
+
+  await ProjectionService.runProjectionBatch();
+  console.log('[Bootstrap] Baseline seeding completed safely.');
+  return true;
+}
+
+/**
+ * Manual CLI seed: Purges existing data and resets to baseline demo set.
+ * Only intended for direct execution via `npm run seed`.
+ */
 export async function runSeed() {
   console.log('[Seed] Connecting to MongoDB...');
   const connected = await connectDB();
@@ -323,15 +361,16 @@ export async function runSeed() {
   console.log(
     `[Seed] Successfully seeded ${seedData.length} shipment aggregates (${projectedCount} events projected into Read Model).`
   );
-
-  if (connected) {
-    process.exit(0);
-  }
 }
 
 if (require.main === module || process.argv[1]?.includes('seed')) {
-  runSeed().catch((err) => {
-    console.error('[Seed Error]:', err);
-    process.exit(1);
-  });
+  runSeed()
+    .then(() => {
+      process.exit(0);
+    })
+    .catch((err) => {
+      console.error('[Seed Error]:', err);
+      process.exit(1);
+    });
 }
+

@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
+import mongoose from 'mongoose';
 import shipmentRoutes from './routes/shipmentRoutes';
 import { errorHandler } from './middleware/errorHandler';
 
@@ -19,15 +20,16 @@ app.use(
 );
 
 // Restricted CORS Configuration
-const allowedOrigins = process.env.CLIENT_ORIGIN
-  ? process.env.CLIENT_ORIGIN.split(',').map((o) => o.trim())
+const rawOrigins = process.env.CLIENT_ORIGIN
+  ? process.env.CLIENT_ORIGIN.split(',').map((o) => o.trim().replace(/\/$/, ''))
   : ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173', 'http://127.0.0.1:3000'];
 
 app.use(
   cors({
     origin: (origin, callback) => {
       // Allow requests with no origin (curl, postman, server-to-server) or matching allowed origins
-      if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
+      const normalizedOrigin = origin ? origin.replace(/\/$/, '') : '';
+      if (!origin || rawOrigins.includes(normalizedOrigin) || process.env.NODE_ENV !== 'production') {
         return callback(null, true);
       }
       return callback(new Error(`CORS policy: origin ${origin} is not allowed`));
@@ -63,16 +65,35 @@ app.get('/', (_req, res) => {
     endpoints: {
       health: '/health',
       shipments: '/api/shipments',
-      frontend: 'http://localhost:5173',
     },
     timestamp: new Date().toISOString(),
   });
 });
 
 app.get('/health', (_req, res) => {
-  res.status(200).json({
-    status: 'OK',
+  const dbState = mongoose.connection.readyState;
+  const isDbConnected = dbState === 1;
+
+  const dbStateMap: Record<number, string> = {
+    0: 'disconnected',
+    1: 'connected',
+    2: 'connecting',
+    3: 'disconnecting',
+  };
+
+  // In production, database connectivity is required for a healthy status
+  const isProduction = process.env.NODE_ENV === 'production';
+  const isHealthy = isProduction ? isDbConnected : true;
+
+  res.status(isHealthy ? 200 : 503).json({
+    status: isHealthy ? 'OK' : 'DEGRADED',
     service: 'Audit Trail CQRS Event Store API',
+    database: {
+      status: dbStateMap[dbState] || 'unknown',
+      connected: isDbConnected,
+      mode: isDbConnected ? 'mongodb' : 'in-memory-fallback',
+    },
+    uptimeSeconds: Math.floor(process.uptime()),
     timestamp: new Date().toISOString(),
   });
 });

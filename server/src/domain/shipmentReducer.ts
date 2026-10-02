@@ -74,7 +74,7 @@ export function reduceShipmentState(currentState: ShipmentState, event: IEvent):
   } else if (eventTypeStr === EventType.CUSTOMS_CLEARED || eventTypeStr === 'CUSTOMS_CLEARED') {
     nextState.status = 'CUSTOMS_CLEARED';
   } else if (eventTypeStr === EventType.INSPECTION_PASSED || eventTypeStr === 'INSPECTION_PASSED') {
-    nextState.status = (p.status as ShipmentState['status']) || nextState.status || 'CUSTOMS_CLEARED';
+    nextState.status = (p.status as ShipmentState['status']) || 'CUSTOMS_CLEARED';
   } else if (eventTypeStr === EventType.DELIVERED || eventTypeStr === 'DELIVERED') {
     nextState.currentLocation = p.location || nextState.destination;
     nextState.status = 'DELIVERED';

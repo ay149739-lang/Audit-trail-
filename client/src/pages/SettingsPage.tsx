@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Database, ShieldCheck, Server, Lock, Cpu, CheckCircle2, RefreshCw } from 'lucide-react';
 import { SecondaryButton } from '../components/SecondaryButton';
+import { API_BASE_URL } from '../api/shipments';
 
 export const SettingsPage: React.FC = () => {
   const [workerFrequency, setWorkerFrequency] = useState('1000');
@@ -172,7 +173,11 @@ export const SettingsPage: React.FC = () => {
           <div className="space-y-3 text-xs font-sans">
             <div className="p-3 bg-[#FAF9F5] dark:bg-[#141414] rounded-md border border-[#DDDCD6] dark:border-[#333333] space-y-1">
               <span className="font-semibold text-[#252525] dark:text-[#F5F5F0] block">API Gateway Endpoint</span>
-              <span className="font-mono text-[11px] text-[#6B6B66] dark:text-[#9E9E98] block">http://localhost:5000/api</span>
+              <span className="font-mono text-[11px] text-[#6B6B66] dark:text-[#9E9E98] block">
+                {typeof window !== 'undefined' && API_BASE_URL.startsWith('/')
+                  ? `${window.location.origin}${API_BASE_URL}`
+                  : API_BASE_URL}
+              </span>
             </div>
 
             <div className="flex items-center justify-between pt-1">
